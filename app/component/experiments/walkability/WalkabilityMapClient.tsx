@@ -3,6 +3,7 @@
 import { useState } from "react";
 import dynamic from "next/dynamic";
 import { POI_CONFIG } from "./poiIcons";
+import { Search } from "lucide-react";
 
 const LeafletMap = dynamic(
   () => import("./LeafletMap").then((mod) => mod.LeafletMap),
@@ -37,6 +38,46 @@ const POI_OPTIONS: POICategory[] = [
 
 export const WalkabilityMapClient = () => {
   const [walkingTime, setWalkingTime] = useState<WalkingTime>(10);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searching, setSearching] = useState(false);
+
+  const handleSearch = async () => {
+    const query = searchQuery.trim();
+
+    if (!query || searching) return;
+
+    try {
+      setSearching(true);
+
+      const response = await fetch(
+        `/api/geocode?q=${encodeURIComponent(query)}`,
+      );
+
+      if (!response.ok) {
+        throw new Error("Search failed");
+      }
+
+      const results = await response.json();
+
+      if (!results.length) {
+        alert("Location not found");
+        return;
+      }
+
+      const result = results[0];
+
+      const location: [number, number] = [
+        Number(result.lat),
+        Number(result.lon),
+      ];
+
+      setSelectedLocation(location);
+    } catch (error) {
+      console.error("Search error:", error);
+    } finally {
+      setSearching(false);
+    }
+  };
 
   const [selectedLocation, setSelectedLocation] = useState<
     [number, number] | null
@@ -62,6 +103,26 @@ export const WalkabilityMapClient = () => {
   return (
     <div className="grid gap-6 lg:grid-cols-[280px_1fr]">
       <aside className="rounded-2xl bg-white p-5 shadow-sm">
+        <div className="relative">
+          <Search
+            size={17}
+            strokeWidth={1.8}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400"
+          />
+
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleSearch();
+              }
+            }}
+            placeholder="Search street or place"
+            className="h-11 w-full rounded-xl border border-neutral-200 bg-white pl-10 pr-4 text-sm outline-none transition placeholder:text-neutral-400 focus:border-neutral-400"
+          />
+        </div>
         <p className="text-xs font-medium uppercase tracking-wider text-neutral-400">
           Walking time
         </p>
