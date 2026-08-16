@@ -1,24 +1,19 @@
 "use client";
 
-import { MapContainer, TileLayer } from "react-leaflet";
-import "leaflet/dist/leaflet.css";
+import dynamic from "next/dynamic";
 
-const TEHRAN_CENTER: [number, number] = [35.7219, 51.3347];
+const LeafletMap = dynamic(
+  () => import("./LeafletMap").then((mod) => mod.LeafletMap),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-[450px] w-full rounded-xl bg-neutral-100 flex items-center justify-center">
+        Loading map...
+      </div>
+    ),
+  },
+);
 
 export const WalkabilityMapClient = () => {
-  return (
-    <div className="h-[600px] w-full overflow-hidden rounded-xl">
-      <MapContainer
-        center={TEHRAN_CENTER}
-        zoom={14}
-        scrollWheelZoom={true}
-        className="h-full w-full"
-      >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
-      </MapContainer>
-    </div>
-  );
+  return <LeafletMap />;
 };

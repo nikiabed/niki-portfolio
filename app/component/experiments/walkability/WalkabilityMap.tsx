@@ -10,7 +10,7 @@ const Map = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="h-[600px] w-full rounded-xl bg-neutral-100 flex items-center justify-center">
+      <div className="h-[450px] w-full rounded-xl bg-neutral-100 flex items-center justify-center">
         Loading map...
       </div>
     ),
