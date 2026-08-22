@@ -215,7 +215,7 @@ export const LeafletMap = ({
   );
 
   return (
-    <div className="relative h-[450px] w-full overflow-hidden rounded-2xl">
+    <div className="relative  h-full w-full overflow-hidden rounded-2xl">
       <MapContainer
         center={TEHRAN_CENTER}
         zoom={14}

@@ -10,7 +10,7 @@ const LeafletMap = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="h-[450px] w-full rounded-xl bg-neutral-100 flex items-center justify-center">
+      <div className="flex h-full min-h-[100vh] w-full items-center justify-center bg-neutral-100">
         Loading map...
       </div>
     ),
@@ -101,13 +101,33 @@ export const WalkabilityMapClient = () => {
   };
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[280px_1fr]">
-      <aside className="rounded-2xl bg-white p-5 shadow-sm">
+    <div className="grid w-full gap-6 lg:grid-cols-[280px_minmax(0,1fr)]">
+      {/* SIDEBAR */}
+      <aside
+        className="
+        sticky
+        top-6
+        h-fit
+        max-h-[calc(100vh-3rem)]
+        overflow-y-auto
+        rounded-2xl
+        bg-white
+        p-5
+        shadow-sm
+      "
+      >
+        {/* SEARCH */}
         <div className="relative">
           <Search
             size={17}
             strokeWidth={1.8}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400"
+            className="
+            absolute
+            left-3
+            top-1/2
+            -translate-y-1/2
+            text-neutral-400
+          "
           />
 
           <input
@@ -120,137 +140,207 @@ export const WalkabilityMapClient = () => {
               }
             }}
             placeholder="Search street or place"
-            className="h-11 w-full rounded-xl border border-neutral-200 bg-white pl-10 pr-4 text-sm outline-none transition placeholder:text-neutral-400 focus:border-neutral-400"
+            className="
+            h-11
+            w-full
+            rounded-xl
+            border
+            border-neutral-200
+            bg-white
+            pl-10
+            pr-4
+            text-sm
+            outline-none
+            transition
+            placeholder:text-neutral-400
+            focus:border-neutral-400
+          "
           />
         </div>
-        <p className="text-xs font-medium uppercase tracking-wider text-neutral-400">
-          Walking time
-        </p>
 
-        <h2 className="mt-1 text-lg font-medium">How far can you walk?</h2>
+        {/* WALKING TIME */}
+        <div className="mt-6">
+          <p className="text-xs font-medium uppercase tracking-wider text-neutral-400">
+            Walking time
+          </p>
 
-        <div className="mt-4 grid grid-cols-2 gap-2">
-          {[5, 10, 15, 20].map((time) => (
-            <button
-              key={time}
-              onClick={() => setWalkingTime(time as WalkingTime)}
-              className={`rounded-xl px-3 py-3 text-sm transition ${
-                walkingTime === time
-                  ? "bg-neutral-900 text-white"
-                  : "bg-neutral-100 text-neutral-700 hover:bg-neutral-200"
-              }`}
-            >
-              {time} min
-            </button>
-          ))}
-        </div>
+          <h2 className="mt-1 text-lg font-medium">How far can you walk?</h2>
 
-        <div className="my-6 h-px bg-neutral-100" />
-
-        <p className="text-xs font-medium uppercase tracking-wider text-neutral-400">
-          Explore
-        </p>
-
-        <div className="mt-3 space-y-2">
-          {POI_OPTIONS.map((category) => {
-            const option = POI_CONFIG[category];
-
-            const checked = selectedCategories.includes(category);
-
-            return (
+          <div className="mt-4 grid grid-cols-2 gap-2">
+            {[5, 10, 15, 20].map((time) => (
               <button
-                key={category}
-                type="button"
-                onClick={() => toggleCategory(category)}
-                className={`group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition ${
-                  checked ? "bg-neutral-100" : "hover:bg-neutral-50"
-                }`}
+                key={time}
+                onClick={() => setWalkingTime(time as WalkingTime)}
+                className={`
+                rounded-xl
+                px-3
+                py-3
+                text-sm
+                transition
+                ${
+                  walkingTime === time
+                    ? "bg-neutral-900 text-white"
+                    : "bg-neutral-100 text-neutral-700 hover:bg-neutral-200"
+                }
+              `}
               >
-                {/* Icon */}
-                <span
-                  className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition ${
-                    checked
-                      ? "bg-neutral-900 text-white"
-                      : "bg-neutral-100 text-neutral-500 group-hover:bg-neutral-200"
-                  }`}
-                >
-                  <svg
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    dangerouslySetInnerHTML={{
-                      __html: option.svg,
-                    }}
-                  />
-                </span>
-
-                {/* Label */}
-                <span
-                  className={`text-sm ${
-                    checked
-                      ? "font-medium text-neutral-900"
-                      : "text-neutral-600"
-                  }`}
-                >
-                  {option.label}
-                </span>
-
-                {/* Check */}
-                <span className="ml-auto">
-                  <span
-                    className={`flex h-4 w-4 items-center justify-center rounded-full border transition ${
-                      checked
-                        ? "border-neutral-900 bg-neutral-900"
-                        : "border-neutral-300"
-                    }`}
-                  >
-                    {checked && (
-                      <svg
-                        width="10"
-                        height="10"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="white"
-                        strokeWidth="3"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="m5 12 4 4L19 6" />
-                      </svg>
-                    )}
-                  </span>
-                </span>
+                {time} min
               </button>
-            );
-          })}
+            ))}
+          </div>
         </div>
 
         <div className="my-6 h-px bg-neutral-100" />
 
-        <p className="text-xs font-medium uppercase tracking-wider text-neutral-400">
-          Location
-        </p>
+        {/* EXPLORE */}
+        <div>
+          <p className="text-xs font-medium uppercase tracking-wider text-neutral-400">
+            Explore
+          </p>
 
-        <p className="mt-2 text-sm text-neutral-600">
-          {selectedLocation
-            ? `${selectedLocation[0].toFixed(
-                4,
-              )}, ${selectedLocation[1].toFixed(4)}`
-            : "Click on the map"}
-        </p>
+          <div className="mt-3 space-y-2">
+            {POI_OPTIONS.map((category) => {
+              const option = POI_CONFIG[category];
+              const checked = selectedCategories.includes(category);
+
+              return (
+                <button
+                  key={category}
+                  type="button"
+                  onClick={() => toggleCategory(category)}
+                  className={`
+                  group
+                  flex
+                  w-full
+                  items-center
+                  gap-3
+                  rounded-xl
+                  px-3
+                  py-2.5
+                  text-left
+                  transition
+                  ${checked ? "bg-neutral-100" : "hover:bg-neutral-50"}
+                `}
+                >
+                  <span
+                    className={`
+                    flex
+                    h-9
+                    w-9
+                    shrink-0
+                    items-center
+                    justify-center
+                    rounded-lg
+                    transition
+                    ${
+                      checked
+                        ? "bg-neutral-900 text-white"
+                        : "bg-neutral-100 text-neutral-500 group-hover:bg-neutral-200"
+                    }
+                  `}
+                  >
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      dangerouslySetInnerHTML={{
+                        __html: option.svg,
+                      }}
+                    />
+                  </span>
+
+                  <span
+                    className={`
+                    text-sm
+                    ${
+                      checked
+                        ? "font-medium text-neutral-900"
+                        : "text-neutral-600"
+                    }
+                  `}
+                  >
+                    {option.label}
+                  </span>
+
+                  <span className="ml-auto">
+                    <span
+                      className={`
+                      flex
+                      h-4
+                      w-4
+                      items-center
+                      justify-center
+                      rounded-full
+                      border
+                      transition
+                      ${
+                        checked
+                          ? "border-neutral-900 bg-neutral-900"
+                          : "border-neutral-300"
+                      }
+                    `}
+                    >
+                      {checked && (
+                        <svg
+                          width="10"
+                          height="10"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="white"
+                          strokeWidth="3"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="m5 12 4 4L19 6" />
+                        </svg>
+                      )}
+                    </span>
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="my-6 h-px bg-neutral-100" />
+
+        {/* LOCATION */}
+        <div>
+          <p className="text-xs font-medium uppercase tracking-wider text-neutral-400">
+            Location
+          </p>
+
+          <p className="mt-2 break-words text-sm text-neutral-600">
+            {selectedLocation
+              ? `${selectedLocation[0].toFixed(
+                  4,
+                )}, ${selectedLocation[1].toFixed(4)}`
+              : "Click on the map"}
+          </p>
+        </div>
       </aside>
 
-      <LeafletMap
-        walkingTime={walkingTime}
-        selectedLocation={selectedLocation}
-        onLocationSelect={setSelectedLocation}
-        selectedCategories={selectedCategories}
-      />
+      {/* MAP */}
+      <div
+        className="
+        min-w-0
+        w-full
+        overflow-hidden
+        rounded-2xl
+      "
+      >
+        <LeafletMap
+          walkingTime={walkingTime}
+          selectedLocation={selectedLocation}
+          onLocationSelect={setSelectedLocation}
+          selectedCategories={selectedCategories}
+        />
+      </div>
     </div>
   );
 };
