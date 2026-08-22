@@ -1,2 +1,1 @@
-export * from './CityMap'
 export * from './MomentumlySection'
