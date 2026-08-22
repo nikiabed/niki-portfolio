@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { MomentumlySection } from "./MomentumlySection";
 
 export const CityMap = () => {
   const [visible, setVisible] = useState(false);
@@ -8,365 +9,382 @@ export const CityMap = () => {
   useEffect(() => {
     const timer = window.setTimeout(() => {
       setVisible(true);
-    }, 100);
+    }, 200);
 
     return () => window.clearTimeout(timer);
   }, []);
 
+  const blockSizes = {
+    sm: "h-[clamp(3rem,4vw,4rem)] w-[clamp(4rem,5.5vw,5.5rem)]",
+
+    md: "h-[clamp(4rem,5vw,5rem)] w-[clamp(5.5rem,7vw,7rem)]",
+
+    lg: "h-[clamp(5rem,6vw,6.5rem)] w-[clamp(7rem,9vw,9rem)]",
+  };
+  type MapBlockProps = {
+    size?: "sm" | "md" | "lg";
+    className?: string;
+    delay?: string;
+    href?: string;
+    children?: React.ReactNode;
+  };
+
+  const MapBlock = ({
+    size,
+    className = "",
+    delay = "",
+    href,
+    children,
+  }: MapBlockProps) => {
+    const classes = `
+    group
+    relative
+
+    ${size ? blockSizes[size] : ""}
+
+    border
+    bg-white/[0.02]
+
+    transition-all
+    duration-500
+    ease-out
+
+    ${delay}
+
+    ${visible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"}
+
+    ${href ? "cursor-pointer hover:-translate-y-2 hover:scale-[1.04]" : ""}
+
+    ${className}
+  `;
+
+    if (href) {
+      return (
+        <a href={href} className={classes}>
+          {children}
+        </a>
+      );
+    }
+
+    return <div className={classes}>{children}</div>;
+  };
+
   return (
-    <section
-      id="hero"
-      className="relative min-h-[100svh] overflow-hidden bg-[#1b1b1b] text-[#f1f1ed]"
-    >
-      {/* =========================================================
-          CITY GRAPHIC
-      ========================================================== */}
+    <main className="relative w-full bg-[#1b1b1b] text-[#f1f1ed]">
+      <section className="relative min-h-[4900px] w-full overflow-hidden bg-[#1e1e1e]">
+        <img
+          src="/maps/Asset 6.svg"
+          alt=""
+          className={` absolute left-0 top-0 h-auto w-full  transition-all duration-[1800ms] ease-out
+    ${visible ? "opacity-100 scale-100" : "opacity-0 scale-[1.015]"}`}
+        />
 
-      <div
-        className={`pointer-events-none absolute inset-0 transition-opacity duration-1000 ${
-          visible ? "opacity-100" : "opacity-0"
-        }`}
-      >
-        <svg
-          viewBox="0 0 1440 900"
-          className="h-full w-full"
-          preserveAspectRatio="xMidYMid slice"
-          aria-hidden="true"
+        {/* content روی نقشه */}
+        <div
+          className="
+    absolute
+    left-0
+    top-0
+    z-10
+    w-full
+  "
         >
-          <defs>
-            {/* Fade the city toward the edges */}
-            <radialGradient id="heroCityFade" cx="47%" cy="28%" r="72%">
-              <stop offset="0%" stopColor="white" stopOpacity="1" />
-              <stop offset="48%" stopColor="white" stopOpacity="0.9" />
-              <stop offset="72%" stopColor="white" stopOpacity="0.38" />
-              <stop offset="100%" stopColor="black" stopOpacity="0" />
-            </radialGradient>
-
-            <mask id="heroCityMask">
-              <rect width="1440" height="900" fill="url(#heroCityFade)" />
-            </mask>
-          </defs>
-
-          <g mask="url(#heroCityMask)" stroke="#f1f1ed" fill="none">
-            {/* =====================================================
-                LEFT / TOP URBAN FRAGMENT
-            ====================================================== */}
-
-            {/* Vertical road */}
-            <line
-              x1="353"
-              y1="-30"
-              x2="353"
-              y2="320"
-              strokeWidth="1"
-              opacity="0.7"
-            />
-
-            <line
-              x1="375"
-              y1="-30"
-              x2="375"
-              y2="320"
-              strokeWidth="1"
-              opacity="0.7"
-            />
-
-            {/* Horizontal road */}
-            <line
-              x1="35"
-              y1="78"
-              x2="353"
-              y2="78"
-              strokeWidth="1"
-              opacity="0.7"
-            />
-
-            <line
-              x1="35"
-              y1="89"
-              x2="353"
-              y2="89"
-              strokeWidth="1"
-              opacity="0.7"
-            />
-
-            {/* Left vertical street */}
-            <line
-              x1="34"
-              y1="68"
-              x2="34"
-              y2="390"
-              strokeWidth="1"
-              opacity="0.65"
-            />
-
-            <line
-              x1="43"
-              y1="78"
-              x2="43"
-              y2="398"
-              strokeWidth="1"
-              opacity="0.65"
-            />
-
-            {/* Left diagonal branch */}
-            <line
-              x1="34"
-              y1="395"
-              x2="323"
-              y2="510"
-              strokeWidth="1"
-              opacity="0.45"
-            />
-
-            <line
-              x1="34"
-              y1="386"
-              x2="323"
-              y2="501"
-              strokeWidth="1"
-              opacity="0.45"
-            />
-
-            {/* Diagonal from upper spine */}
-            <line
-              x1="353"
-              y1="320"
-              x2="248"
-              y2="590"
-              strokeWidth="1"
-              opacity="0.7"
-            />
-
-            <line
-              x1="375"
-              y1="320"
-              x2="270"
-              y2="590"
-              strokeWidth="1"
-              opacity="0.7"
-            />
-
-            {/* =====================================================
-                TOP RIGHT NETWORK
-            ====================================================== */}
-
-            <line
-              x1="375"
-              y1="285"
-              x2="1330"
-              y2="285"
-              strokeWidth="1"
-              opacity="0.65"
-            />
-
-            <line
-              x1="375"
-              y1="297"
-              x2="1330"
-              y2="297"
-              strokeWidth="1"
-              opacity="0.65"
-            />
-
-            {/* right vertical road */}
-            <line
-              x1="1115"
-              y1="300"
-              x2="1119"
-              y2="565"
-              strokeWidth="1"
-              opacity="0.62"
-            />
-
-            <line
-              x1="1128"
-              y1="300"
-              x2="1132"
-              y2="565"
-              strokeWidth="1"
-              opacity="0.62"
-            />
-
-            {/* top-right vertical */}
-            <line
-              x1="822"
-              y1="285"
-              x2="816"
-              y2="35"
-              strokeWidth="1"
-              opacity="0.48"
-            />
-
-            {/* upper horizontal */}
-            <line
-              x1="822"
-              y1="110"
-              x2="1180"
-              y2="110"
-              strokeWidth="1"
-              opacity="0.48"
-            />
-
-            <line
-              x1="620"
-              y1="300"
-              x2="620"
-              y2="534"
-              strokeWidth="1"
-              opacity="0.44"
-            />
-
-            {/* =====================================================
-                RIGHT DIAGONAL / CONTINUATION
-            ====================================================== */}
-
-            <line
-              x1="1100"
-              y1="640"
-              x2="843"
-              y2="902"
-              strokeWidth="1"
-              opacity="0.52"
-            />
-
-            <line
-              x1="1118"
-              y1="639"
-              x2="861"
-              y2="902"
-              strokeWidth="1"
-              opacity="0.52"
-            />
-
-            {/* Lower-left continuation */}
-            <line
-              x1="615"
-              y1="735"
-              x2="615"
-              y2="900"
-              strokeWidth="1"
-              opacity="0.4"
-            />
-
-            {/* Lower diagonal continuation */}
-            <line
-              x1="843"
-              y1="903"
-              x2="660"
-              y2="1080"
-              strokeWidth="1"
-              opacity="0.42"
-            />
-
-            <line
-              x1="861"
-              y1="903"
-              x2="678"
-              y2="1080"
-              strokeWidth="1"
-              opacity="0.42"
-            />
-
-            {/* =====================================================
-                EXTRA LIGHT CONTEXT STREETS
-            ====================================================== */}
-
-            <g opacity="0.18">
-              <line x1="690" y1="40" x2="690" y2="230" />
-              <line x1="705" y1="50" x2="705" y2="240" />
-
-              <line x1="930" y1="60" x2="930" y2="265" />
-              <line x1="942" y1="60" x2="942" y2="265" />
-
-              <line x1="500" y1="330" x2="500" y2="530" />
-              <line x1="512" y1="330" x2="512" y2="530" />
-
-              <line x1="760" y1="330" x2="760" y2="560" />
-              <line x1="773" y1="330" x2="773" y2="560" />
-            </g>
-          </g>
-        </svg>
-      </div>
-
-      {/* =========================================================
-          TOP LEFT IDENTITY BLOCK
-      ========================================================== */}
-
-      <div
-        className={`absolute left-5 top-4 z-20 w-[190px] transition-all duration-1000 md:left-8 md:top-5 ${
-          visible ? "translate-y-0 opacity-100" : "-translate-y-3 opacity-0"
-        }`}
-      >
-        {/* Name */}
-        <div className="border-b border-white/60 pb-2">
-          <p className="text-[9px] uppercase tracking-[0.28em] text-white/75">
+          <p
+            className={`
+    ml-[5%] mt-[2%]
+    text-2xl uppercase tracking-[0.28em] text-white/50
+    transition-all duration-[1200ms] ease-out
+    ${visible ? "translate-y-0 opacity-100" : "-translate-y-4 opacity-0"}
+  `}
+          >
             Niki Abedzadeh
           </p>
-        </div>
+          <h1 className="mt-[5%] ml-[5%] space-y-2 text-6xl font-semibold tracking-[-0.06em]">
+            <p
+              className={`
+      transition-all duration-700 ease-out
+      ${visible ? "translate-x-0 opacity-100" : "-translate-x-8 opacity-0"}
+    `}
+            >
+              <span style={{ color: "var(--design)" }}>Design</span>
+            </p>
 
-        {/* Identity block */}
-        <div className="mt-3 border-l border-white/60 pl-3">
-          <p className="max-w-[150px] text-[20px] font-light leading-[1.05] tracking-[-0.04em] text-white md:text-[22px]">
-            Urban Designer,
-            <br />
-            Researcher,
-            <br />
-            Developer
-          </p>
-        </div>
+            <p
+              className={`
+      transition-all delay-150 duration-700 ease-out
+      ${visible ? "translate-x-0 opacity-100" : "-translate-x-8 opacity-0"}
+    `}
+            >
+              <span style={{ color: "var(--research)" }}>Research</span>
+            </p>
 
-        {/* Continuation of the plot */}
-        <div className="mt-3 h-5 border-l border-b border-white/30" />
-      </div>
+            <p
+              className={`
+      transition-all delay-300 duration-700 ease-out
+      ${visible ? "translate-x-0 opacity-100" : "-translate-x-8 opacity-0"}
+    `}
+            >
+              <span style={{ color: "var(--develop)" }}>Develop</span>
+            </p>
+          </h1>
+          <h2
+            className={`
+    ml-[40%] mt-[8%]
+    max-w-[850px]
+    text-7xl font-light text-white/70
+    transition-all duration-[1400ms] ease-out
+    ${visible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"}
+  `}
+          >
+            Exploring cities through design, data & technology.
+          </h2>
 
-      {/* =========================================================
-          MAIN HERO COPY
-      ========================================================== */}
+          <div
+            className="
+    absolute
+    left-[clamp(36%,24vw,34%)]
+    top-[clamp(38%,44vw,50%)]
+    z-[5]
+    w-[clamp(680px,90vw,1300px)]
+    -translate-x-1/2
+  "
+          >
+            <div className="flex justify-end gap-[clamp(0.75rem,1.4vw,1.5rem)]">
+              {/* LEFT CLUSTER */}
+              <div className="flex justify-end gap-[clamp(0.5rem,0.8vw,0.75rem)]">
+                <MapBlock
+                  size="md"
+                  className="
+          h-[clamp(3rem,5vw,5rem)]
+          w-[clamp(4.5rem,7vw,7rem)]
+          border-white/10
+        "
+                />
 
-      <div
-        className={`absolute left-[50%] top-[34%] z-20 w-[min(620px,calc(100%-48px))] -translate-x-[10%] transition-all delay-150 duration-1000 sm:left-[52%] md:top-[37%] ${
-          visible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
-        }`}
-      >
-        <h1 className="text-[clamp(2.25rem,4.4vw,4.2rem)] font-light leading-[0.95] tracking-[-0.055em] text-white">
-          Designing beyond disciplines
-        </h1>
+                <MapBlock
+                  size="sm"
+                  href="#about"
+                  delay="delay-100"
+                  className="
+          h-[clamp(4.5rem,7vw,7.5rem)]
+          w-[clamp(3.5rem,5vw,5rem)]
+                    border-white/30
+                      hover:bg-white/5
+          hover:shadow-[0_0_35px_rgba(225,225,225,0.05)]
 
-        <p className="mt-5 max-w-[310px] text-[10px] leading-5 tracking-[0.01em] text-white/55 sm:text-[11px]">
-          Exploring cities through design, data &amp; technology.
-        </p>
-      </div>
+        "
+                >
+                  <span
+                    className="
+        absolute bottom-2 left-3
+        text-[9px] uppercase tracking-[0.2em]
+        text-white/0
+        transition-all duration-300
+        group-hover:text-white/40
+      "
+                  >
+                    about →
+                  </span>
+                </MapBlock>
+              </div>
 
-      {/* =========================================================
-          SCROLL INDICATOR
-      ========================================================== */}
+              {/* RIGHT CLUSTER */}
+              <div className="flex justify-end gap-[clamp(0.5rem,0.8vw,0.75rem)]">
+                <MapBlock
+                  size="sm"
+                  className="
+          h-[clamp(3rem,5vw,5rem)]
+          w-[clamp(3.5rem,5vw,5rem)]
+          border-white/10
+        "
+                />
 
-      <div
-        className={`absolute bottom-7 left-1/2 z-20 -translate-x-1/2 transition-all delay-500 duration-1000 ${
-          visible ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
-        }`}
-      >
-        <div className="flex flex-col items-center gap-3">
-          <span className="text-[9px] uppercase tracking-[0.28em] text-white/45">
-            Scroll to explore
-          </span>
+                <MapBlock
+                  size="md"
+                  href="#projects"
+                  delay="delay-150"
+                  className="
+          h-[clamp(4rem,6vw,6.5rem)]
+          w-[clamp(4.5rem,7vw,7rem)]
+          border-white/30
+           hover:bg-white/5
+          hover:shadow-[0_0_35px_rgba(225,225,225,0.05)]
+        "
+                >
+                  <span
+                    className="
+        absolute bottom-2 left-3
+        text-[9px] uppercase tracking-[0.2em]
+        text-white/0
+        transition-all duration-300
+        group-hover:text-white/40
+       
+      "
+                  >
+                    Projects →
+                  </span>
+                </MapBlock>
 
-          <div className="h-7 w-px bg-white/35">
-            <div className="h-2 w-px animate-pulse bg-white/80" />
+                <MapBlock
+                  size="md"
+                  className="
+          h-[clamp(3rem,5vw,5rem)]
+          w-[clamp(4.5rem,7vw,7rem)]
+          border-white/10
+        "
+                />
+
+                <MapBlock
+                  size="sm"
+                  className="
+          h-[clamp(4rem,5.5vw,5.5rem)]
+          w-[clamp(2.5rem,3.5vw,4rem)]
+          border-white/10
+        "
+                />
+
+                <MapBlock
+                  size="sm"
+                  className="
+          h-[clamp(4.5rem,7vw,7rem)]
+          w-[clamp(3rem,7vw,7rem)]
+          border-white/10
+        "
+                />
+              </div>
+            </div>
           </div>
+          <div className="absolute left-[46%] top-[25%] z-[5] w-[90%] -translate-x-1/2">
+            <div className="flex justify-end gap-8">
+              <div className="flex justify-end items-end gap-3">
+                <MapBlock
+                  href="#design"
+                  className="
+          h-20 w-28
+          items-end
+          border-[#e46a63]/30
+          bg-[#e46a63]/[0.04]
+
+          hover:border-[#e46a63]
+          hover:bg-[#e46a63]/15
+          hover:shadow-[0_0_35px_rgba(228,106,99,0.15)]
+        "
+                >
+                  <span
+                    className="
+            absolute bottom-2 left-3
+            text-[9px] uppercase tracking-[0.2em]
+            text-[#e46a63]/0
+            transition-all duration-300
+            group-hover:text-[#e46a63]
+          "
+                  >
+                    Design →
+                  </span>
+                </MapBlock>
+
+                <MapBlock
+                  className="
+          h-30 w-20
+          border-white/10
+          bg-white/[0.02]
+        "
+                />
+
+                <MapBlock
+                  className="
+          h-20 w-28
+          border-white/10
+          bg-white/[0.02]
+        "
+                />
+
+                <MapBlock
+                  href="#develop"
+                  className="
+          h-30 w-[72px]
+          items-end
+          border-[#7fc6a4]/30
+          bg-[#7fc6a4]/[0.04]
+
+          hover:border-[#7fc6a4]
+          hover:bg-[#7fc6a4]/15
+          hover:shadow-[0_0_35px_rgba(127,198,164,0.15)]
+        "
+                >
+                  <span
+                    className="
+            absolute bottom-2 left-2
+            text-[8px] uppercase tracking-[0.15em]
+            text-[#7fc6a4]/0
+            transition-all duration-300
+            group-hover:text-[#7fc6a4]
+          "
+                  >
+                    Research →
+                  </span>
+                </MapBlock>
+              </div>
+
+              <div className="flex justify-end items-end gap-3">
+                <MapBlock
+                  className="
+          h-20 w-30
+          border-white/10
+          bg-white/[0.02]
+        "
+                />
+
+                <MapBlock
+                  href="#research"
+                  className="
+          h-[120px] w-[100px]
+          items-end
+          border-[#7d9be8]/30
+          bg-[#7d9be8]/[0.04]
+
+          hover:border-[#7d9be8]
+          hover:bg-[#7d9be8]/15
+          hover:shadow-[0_0_35px_rgba(125,155,232,0.15)]
+        "
+                >
+                  <span
+                    className="
+            absolute bottom-2 left-3
+            text-[9px] uppercase tracking-[0.2em]
+            text-[#7d9be8]/0
+            transition-all duration-300
+            group-hover:text-[#7d9be8]
+          "
+                  >
+                    Develop →
+                  </span>
+                </MapBlock>
+
+                <MapBlock
+                  className="
+          h-20 w-30
+          border-white/10
+          bg-white/[0.02]
+        "
+                />
+
+                <MapBlock
+                  className="
+          h-25 w-25
+          border-white/10
+          bg-white/[0.02]
+        "
+                />
+              </div>
+            </div>
+          </div>
+
+
+      <MomentumlySection />
         </div>
-      </div>
+      </section>
 
-      {/* =========================================================
-          SMALL NAV / STATUS
-      ========================================================== */}
-
-      <div className="absolute right-6 top-5 z-20 md:right-8">
-        <p className="text-[9px] uppercase tracking-[0.22em] text-white/30">
-          01 — Entrance
-        </p>
-      </div>
-    </section>
+    </main>
   );
 };

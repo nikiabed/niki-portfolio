@@ -3,6 +3,9 @@
 :root {
   --background: #f4f1e8;
   --foreground: #171717;
+  --design: #e46a63;
+  --research: #79a47b;
+  --develop: #6587e8;
 }
 
 html {
