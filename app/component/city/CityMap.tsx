@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { MomentumlySection } from "./MomentumlySection";
+import { ProjectsSection } from "./ProjectsSection";
+import { ThesisSection } from "./ThesisSection";
+import { CurrentlyExploringSection } from "./CurrentlyExploringSection";
 
 export const CityMap = () => {
   const [visible, setVisible] = useState(false);
@@ -73,7 +76,7 @@ export const CityMap = () => {
     <main className="relative w-full bg-[#1b1b1b] text-[#f1f1ed]">
       <section className="relative min-h-[4900px] w-full overflow-hidden bg-[#1e1e1e]">
         <img
-          src="/maps/Asset 6.svg"
+          src="/maps/Asset 33.svg"
           alt=""
           className={` absolute left-0 top-0 h-auto w-full  transition-all duration-[1800ms] ease-out
     ${visible ? "opacity-100 scale-100" : "opacity-0 scale-[1.015]"}`}
@@ -382,6 +385,9 @@ export const CityMap = () => {
 
 
       <MomentumlySection />
+      <ProjectsSection/>
+      <ThesisSection/>
+      <CurrentlyExploringSection />
         </div>
       </section>
 
