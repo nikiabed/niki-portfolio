@@ -5,6 +5,7 @@ import { MomentumlySection } from "./MomentumlySection";
 import { ProjectsSection } from "./ProjectsSection";
 import { ThesisSection } from "./ThesisSection";
 import { CurrentlyExploringSection } from "./CurrentlyExploringSection";
+import { FooterSection } from "./FooterSection";
 
 export const CityMap = () => {
   const [visible, setVisible] = useState(false);
@@ -74,7 +75,7 @@ export const CityMap = () => {
 
   return (
     <main className="relative w-full bg-[#1b1b1b] text-[#f1f1ed]">
-      <section className="relative min-h-[4900px] w-full overflow-hidden bg-[#1e1e1e]">
+      <section className="relative min-h-[4620px] w-full overflow-hidden bg-[#1e1e1e]">
         <img
           src="/maps/Asset 33.svg"
           alt=""
@@ -388,6 +389,7 @@ export const CityMap = () => {
       <ProjectsSection/>
       <ThesisSection/>
       <CurrentlyExploringSection />
+      <FooterSection/>
         </div>
       </section>
 
