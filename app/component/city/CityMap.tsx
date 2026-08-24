@@ -74,8 +74,8 @@ export const CityMap = () => {
   };
 
   return (
-    <main className="relative w-full bg-[#1b1b1b] text-[#f1f1ed]">
-      <section className="relative min-h-[4620px] w-full overflow-hidden bg-[#1e1e1e]">
+    <main className="  w-full bg-[#1b1b1b] text-[#f1f1ed]">
+      <section className="relative min-h-[5000px] w-full overflow-hidden bg-[#1e1e1e]">
         <img
           src="/maps/Asset 33.svg"
           alt=""
@@ -384,15 +384,13 @@ export const CityMap = () => {
             </div>
           </div>
 
-
-      <MomentumlySection />
-      <ProjectsSection/>
-      <ThesisSection/>
-      <CurrentlyExploringSection />
-      <FooterSection/>
+          <MomentumlySection />
+          <ProjectsSection />
+          <ThesisSection />
+          <CurrentlyExploringSection />
         </div>
+        <FooterSection />
       </section>
-
     </main>
   );
 };
