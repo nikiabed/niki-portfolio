@@ -1,56 +1,112 @@
-type Parcel = {
+export type Street = {
   id: number;
-  points: string;
-  type: "building" | "green" | "public";
+  x?: number;
+  y?: number;
+  width: number;
+  direction: "horizontal" | "vertical";
 };
 
-export function generateUrbanBlock(seed: number): Parcel[] {
-  const site = [
-    [150, 80],
-    [720, 80],
-    [780, 150],
-    [780, 420],
-    [120, 420],
-    [80, 330],
+export type Block = {
+  id: number;
+  points: string;
+};
+
+export type UrbanLayout = {
+  streets: Street[];
+  blocks: Block[];
+};
+
+function random(seed: number) {
+  const x = Math.sin(seed) * 10000;
+  return x - Math.floor(x);
+}
+
+export function generateUrbanBlock(seed: number): UrbanLayout {
+  const site = {
+    left: 80,
+    right: 780,
+    top: 80,
+    bottom: 420,
+  };
+
+  /*
+    STREET GENERATION
+  */
+
+  const verticalStreetX = 300 + random(seed) * 180;
+
+  const horizontalStreetY = 220 + random(seed + 10) * 100;
+
+  const streetWidth = 18;
+
+  const streets: Street[] = [
+    {
+      id: 1,
+      direction: "vertical",
+      x: verticalStreetX,
+      width: streetWidth,
+    },
+
+    {
+      id: 2,
+      direction: "horizontal",
+      y: horizontalStreetY,
+      width: streetWidth,
+    },
   ];
 
-  const cols = 5;
-  const rows = 4;
+  /*
+    BLOCK GENERATION
+  */
 
-  const left = 80;
-  const right = 780;
-  const top = 80;
-  const bottom = 420;
+  const sx = verticalStreetX;
+  const sy = horizontalStreetY;
+  const sw = streetWidth;
 
-  const cellW = (right - left) / cols;
-  const cellH = (bottom - top) / rows;
+  const blocks: Block[] = [
+    {
+      id: 1,
+      points: `
+        ${site.left},${site.top}
+        ${sx - sw / 2},${site.top}
+        ${sx - sw / 2},${sy - sw / 2}
+        ${site.left},${sy - sw / 2}
+      `,
+    },
 
-  const parcels: Parcel[] = [];
+    {
+      id: 2,
+      points: `
+        ${sx + sw / 2},${site.top}
+        ${site.right},${site.top}
+        ${site.right},${sy - sw / 2}
+        ${sx + sw / 2},${sy - sw / 2}
+      `,
+    },
 
-  let id = 0;
+    {
+      id: 3,
+      points: `
+        ${site.left},${sy + sw / 2}
+        ${sx - sw / 2},${sy + sw / 2}
+        ${sx - sw / 2},${site.bottom}
+        ${site.left},${site.bottom}
+      `,
+    },
 
-  for (let row = 0; row < rows; row++) {
-    for (let col = 0; col < cols; col++) {
-      const x1 = left + col * cellW;
-      const x2 = left + (col + 1) * cellW;
+    {
+      id: 4,
+      points: `
+        ${sx + sw / 2},${sy + sw / 2}
+        ${site.right},${sy + sw / 2}
+        ${site.right},${site.bottom}
+        ${sx + sw / 2},${site.bottom}
+      `,
+    },
+  ];
 
-      const y1 = top + row * cellH;
-      const y2 = top + (row + 1) * cellH;
-
-      parcels.push({
-        id: id++,
-
-        points: `
-          ${x1},${y1}
-          ${x2},${y1}
-          ${x2},${y2}
-          ${x1},${y2}
-        `,
-
-        type: id % 7 === 0 ? "green" : id % 9 === 0 ? "public" : "building",
-      });
-    }
-  }
-
-  return parcels;
+  return {
+    streets,
+    blocks,
+  };
 }
