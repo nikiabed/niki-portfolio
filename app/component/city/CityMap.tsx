@@ -20,7 +20,16 @@ export const CityMap = () => {
 
   return (
     <main className="w-full bg-[#1b1b1b] text-[#f1f1ed]">
-      <section className="relative min-h-[5000px] w-full overflow-hidden bg-[#1e1e1e]">
+      <section
+        className="
+    relative
+    h-[315.3vw]
+    max-mobile:h-[700.6vw]
+    w-full
+    overflow-hidden
+    bg-[#1e1e1e]
+  "
+      >
         {/* =====================================================
             BACKGROUND MAP
         ====================================================== */}
@@ -594,7 +603,7 @@ mobile:h-[350px]
                 <a href="#about">
                   <rect
                     x="337"
-                   y="35"
+                    y="35"
                     width="60"
                     height="80"
                     fill="white"

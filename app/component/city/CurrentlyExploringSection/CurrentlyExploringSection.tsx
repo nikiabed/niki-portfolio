@@ -215,7 +215,7 @@ export const CurrentlyExploringSection = () => {
         className="
           absolute
           left-[5%]
-          top-[135%]
+          top-[125%]
           block
           mobile:hidden
           w-full

@@ -383,8 +383,8 @@ export const ThesisSection = () => {
           px-[7%]
         "
         style={{
-          left: "0",
-          top: `${(mobileField.cy / SVG_HEIGHT) * 100 - 10}%`,
+          left: "10%",
+          top: `${(mobileField.cy / SVG_HEIGHT) * 100 - 5}%`,
           transform: "translateY(-100%)",
         }}
       >
@@ -403,15 +403,12 @@ export const ThesisSection = () => {
         <h2
           className="
             max-w-[340px]
-            text-4xl
+            text-2xl
             font-light
-            leading-[0.95]
-            tracking-[-0.05em]
             text-white/75
           "
         >
           Spatial Justice
-          <br />
           of Valiasr Street
         </h2>
 
