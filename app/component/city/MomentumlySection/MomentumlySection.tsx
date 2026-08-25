@@ -7,7 +7,6 @@ export const MomentumlySection = () => {
 
   /* ============================================================
    * SVG COORDINATE SYSTEM
-   * دقیقاً همان coordinate system بخش Projects
    * ============================================================ */
 
   const SVG_WIDTH = 1403.28;
@@ -22,6 +21,12 @@ export const MomentumlySection = () => {
     cy: 1199,
     half: 200,
     radius: 60,
+  };
+  const mobileDiamond = {
+    cx: 570,
+    cy: 2520,
+    half: 400,
+    radius: 100,
   };
 
   /* ============================================================
@@ -91,7 +96,7 @@ export const MomentumlySection = () => {
    * ============================================================ */
 
   const diamondY = (diamond.cy / SVG_HEIGHT) * 100;
-
+  const mobileDiamondY = (mobileDiamond.cy / SVG_HEIGHT) * 100;
   return (
     <section
       id="momentumly"
@@ -123,11 +128,13 @@ export const MomentumlySection = () => {
         "
       >
         {/* =====================================================
-            DIAMOND
+            DESKTOP DIAMOND
+            Hover فقط بالای 850px
         ====================================================== */}
 
         <g
           pointerEvents="all"
+          className="hidden mobile:block"
           onMouseEnter={() => setActive(true)}
           onMouseLeave={() => setActive(false)}
           style={{
@@ -168,11 +175,58 @@ export const MomentumlySection = () => {
 
           <circle cx={diamond.cx} cy={diamond.cy} r="4" fill="#e46a63" />
         </g>
+
+        {/* =====================================================
+            MOBILE DIAMOND
+            بدون Hover
+        ====================================================== */}
+
+       <g
+  pointerEvents="none"
+  className="block mobile:hidden"
+>
+  <path
+    d={createRoundedDiamond(
+      mobileDiamond.cx,
+      mobileDiamond.cy,
+      mobileDiamond.half,
+      mobileDiamond.radius,
+    )}
+    fill="#7d9be8"
+    fillOpacity="0.12"
+    stroke="#e46a63"
+    strokeWidth="1.5"
+    strokeOpacity="0.7"
+    vectorEffect="non-scaling-stroke"
+  />
+
+  <path
+    d={createRoundedDiamond(
+      mobileDiamond.cx,
+      mobileDiamond.cy,
+      82,
+      16,
+    )}
+    fill="#7d9be8"
+    fillOpacity="0.08"
+    stroke="#e46a63"
+    strokeWidth="1"
+    strokeOpacity="0.2"
+    vectorEffect="non-scaling-stroke"
+  />
+
+  <circle
+    cx={mobileDiamond.cx}
+    cy={mobileDiamond.cy}
+    r="4"
+    fill="#e46a63"
+  />
+</g>
       </svg>
 
       {/* =======================================================
-          PROJECT PREVIEW
-          HTML
+          DESKTOP PROJECT PREVIEW
+          شناور کنار Diamond
       ======================================================== */}
 
       <div
@@ -180,21 +234,14 @@ export const MomentumlySection = () => {
           pointer-events-none
           absolute
           z-10
+          hidden
+          mobile:block
           w-[43%]
           max-w-[600px]
         "
         style={{
-          /*
-           * کمی به راست‌تر از قبل
-           * تا Diamond به تصویر نزدیک‌تر شود
-           */
           left: "5%",
-
-          /*
-           * دقیقاً هم‌تراز با مرکز Diamond
-           */
           top: `${diamondY}%`,
-
           transform: "translateY(-50%)",
         }}
       >
@@ -212,7 +259,6 @@ export const MomentumlySection = () => {
           "
           style={{
             opacity: active ? 1 : 0,
-
             transform: active ? "scale(1)" : "scale(0.97)",
           }}
         >
@@ -225,9 +271,7 @@ export const MomentumlySection = () => {
               bg-[#181818]
             "
           >
-            {/* =================================================
-                IMAGE
-            ================================================== */}
+            {/* IMAGE */}
 
             <div
               className="
@@ -262,9 +306,7 @@ export const MomentumlySection = () => {
               />
             </div>
 
-            {/* =================================================
-                PROJECT INFO
-            ================================================== */}
+            {/* PROJECT INFO */}
 
             <div
               className="
@@ -323,8 +365,8 @@ export const MomentumlySection = () => {
       </div>
 
       {/* =======================================================
-          SMALL NOTE
-          دقیقاً زیر کارت
+          MOBILE PROJECT PREVIEW
+          زیر Diamond / بدون Hover
       ======================================================== */}
 
       <div
@@ -332,17 +374,132 @@ export const MomentumlySection = () => {
           pointer-events-none
           absolute
           z-10
+          block
+          mobile:hidden
+          w-full
+          px-[5%]
+        "
+        style={{
+          left: "12%",
+          top: `calc(${mobileDiamondY}% + 12%)`,
+        }}
+      >
+        <div
+          className="
+            w-[70%]
+            rounded-2xl
+            border
+            border-white/20
+            bg-[#111111]
+            p-2
+            shadow-[0_30px_100px_rgba(0,0,0,0.65)]
+          "
+        >
+          <div
+            className="
+              overflow-hidden
+              rounded-xl
+              border
+              border-[#e46a63]/30
+              bg-[#181818]
+            "
+          >
+            {/* IMAGE */}
+
+            <div
+              className="
+                relative
+                aspect-video
+                w-full
+                overflow-hidden
+                bg-[#202020]
+              "
+            >
+              <img
+                src="/projects/momentumly.png"
+                alt="Momentumly project preview"
+                className="
+                  block
+                  h-full
+                  w-full
+                  object-contain
+                "
+              />
+
+              <div
+                className="
+                  pointer-events-none
+                  absolute
+                  inset-0
+                  bg-gradient-to-t
+                  from-black/40
+                  via-transparent
+                  to-transparent
+                "
+              />
+            </div>
+
+            {/* PROJECT INFO */}
+
+            <div className="px-4 py-3">
+              <div className="flex items-center justify-between">
+                <p
+                  className="
+                    text-[8px]
+                    uppercase
+                    tracking-[0.22em]
+                    text-[#e46a63]
+                  "
+                >
+                  Product / Frontend
+                </p>
+
+                <span className="text-[10px] text-white/30">↗</span>
+              </div>
+
+              <h3
+                className="
+                  mt-2
+                  text-lg
+                  font-medium
+                  tracking-[-0.03em]
+                  text-white
+                "
+              >
+                Momentumly
+              </h3>
+
+              <p
+                className="
+                  mt-1
+                  text-[10px]
+                  leading-relaxed
+                  text-white/45
+                "
+              >
+                A task management experience designed to make starting easier.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* =======================================================
+          DESKTOP SMALL NOTE
+      ======================================================== */}
+
+      <div
+        className="
+          pointer-events-none
+          absolute
+          z-10
+          hidden
+          mobile:block
           w-[43%]
           max-w-[600px]
         "
         style={{
           left: "6%",
-
-          /*
-           * کارت تقریباً وسط Diamond قرار دارد.
-           *
-           * این مقدار عمداً نزدیک به کارت است.
-           */
           top: `calc(${diamondY}% + 8%)`,
         }}
       >
@@ -363,7 +520,7 @@ export const MomentumlySection = () => {
       </div>
 
       {/* =======================================================
-          HEADER
+          MOBILE SMALL NOTE
       ======================================================== */}
 
       <div
@@ -371,6 +528,41 @@ export const MomentumlySection = () => {
           pointer-events-none
           absolute
           z-10
+          block
+          mobile:hidden
+          w-full
+          px-[5%]
+        "
+        style={{
+          left: "5%",
+          top: `calc(${mobileDiamondY}% + 35%)`,
+        }}
+      >
+        <p
+          className="
+            border-l
+            border-[#e46a63]/30
+            pl-3
+            text-sm
+            uppercase
+            text-white/25
+          "
+        >
+          Designing digital tools around behavior, friction and momentum.
+        </p>
+      </div>
+
+      {/* =======================================================
+          DESKTOP HEADER
+      ======================================================== */}
+
+      <div
+        className="
+          pointer-events-none
+          absolute
+          z-10
+          hidden
+          mobile:block
           w-[27%]
         "
         style={{
@@ -407,6 +599,63 @@ export const MomentumlySection = () => {
             mt-[clamp(0.75rem,1.5vw,1.25rem)]
             max-w-[320px]
             text-[clamp(0.65rem,1vw,1.05rem)]
+            leading-relaxed
+            text-white/45
+          "
+        >
+          A task management experience designed to make starting easier.
+        </p>
+      </div>
+
+      {/* =======================================================
+          MOBILE HEADER
+          بعد از کارت و Note
+      ======================================================== */}
+
+      <div
+        className="
+          pointer-events-none
+          absolute
+          z-10
+          block
+          mobile:hidden
+          w-full
+          px-[5%]
+        "
+        style={{
+          left: "30%",
+          top: `calc(${diamondY}% + 10%)`,
+        }}
+      >
+        <p
+          className="
+            text-[8px]
+            uppercase
+            tracking-[0.25em]
+            text-[#e46a63]/70
+          "
+        >
+          01 — PRODUCT / FRONTEND
+        </p>
+
+        <h2
+          className="
+            mt-2
+            text-[clamp(2rem,10vw,3rem)]
+            font-medium
+            leading-[0.9]
+            tracking-[-0.05em]
+            text-white
+          "
+        >
+          Momentumly
+        </h2>
+
+        <p
+          className="
+            mt-3
+            max-w-[340px]
+            text-md
             leading-relaxed
             text-white/45
           "

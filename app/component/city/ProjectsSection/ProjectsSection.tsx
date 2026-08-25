@@ -10,35 +10,28 @@ export const ProjectsSection = () => {
   const SVG_WIDTH = 1403.28;
   const SVG_HEIGHT = 3876.47;
 
-  /*
-   * ============================================================
-   * MAIN FIELD
-   * ============================================================
-   */
+  /* ============================================================
+     MAIN FIELD
+  ============================================================ */
 
   const field = `
-    768,1902.47
-    1032.63,1902.47
-    1121.68,2022.47
-    1121.52,2227.47
-    1013.02,2329.15
-    779.40,2329.15
-    679.52,2209.47
+    768,1902.47 
+    1032.63,1902.47 
+    1121.68,2022.47 
+    1121.52,2227.47 
+    1013.02,2329.15 
+    779.40,2329.15 
+    679.52,2209.47 
     679.43,2027.75
   `;
 
-  /*
-   * ============================================================
-   * PROJECTS
-   * ============================================================
-   *
-   * هر پروژه یک سلول مستقل دارد.
-   */
+  /* ============================================================
+     PROJECTS
+  ============================================================ */
 
   const projects = [
     {
       id: 1 as ProjectId,
-
       color: "#e46a63",
       hatch: "projects-design-hatch",
 
@@ -50,9 +43,6 @@ export const ProjectsSection = () => {
 
       centerX: 753,
 
-      /*
-       * CELL 01
-       */
       cellPath: `
         M 768 1902.47
         L 827 1902.47
@@ -63,12 +53,7 @@ export const ProjectsSection = () => {
         Z
       `,
 
-      /*
-       * محتوای داخلی
-       */
       contentX: 692,
-      contentRight: 814,
-
       imageX: 690,
       imageY: 2024,
       imageWidth: 130,
@@ -77,7 +62,6 @@ export const ProjectsSection = () => {
 
     {
       id: 2 as ProjectId,
-
       color: "#7d9be8",
       hatch: "projects-research-hatch",
 
@@ -89,9 +73,6 @@ export const ProjectsSection = () => {
 
       centerX: 899.5,
 
-      /*
-       * CELL 02
-       */
       cellPath: `
         M 827 1902.47
         L 972 1902.47
@@ -101,8 +82,6 @@ export const ProjectsSection = () => {
       `,
 
       contentX: 840,
-      contentRight: 959,
-
       imageX: 838,
       imageY: 2024,
       imageWidth: 123,
@@ -111,7 +90,6 @@ export const ProjectsSection = () => {
 
     {
       id: 3 as ProjectId,
-
       color: "#7fc6a4",
       hatch: "projects-develop-hatch",
 
@@ -123,9 +101,6 @@ export const ProjectsSection = () => {
 
       centerX: 1049.5,
 
-      /*
-       * CELL 03
-       */
       cellPath: `
         M 972 1902.47
         L 1032.63 1902.47
@@ -137,8 +112,6 @@ export const ProjectsSection = () => {
       `,
 
       contentX: 985,
-      contentRight: 1108,
-
       imageX: 981,
       imageY: 2024,
       imageWidth: 130,
@@ -146,11 +119,9 @@ export const ProjectsSection = () => {
     },
   ];
 
-  /*
-   * ============================================================
-   * HOVER SCALE
-   * ============================================================
-   */
+  /* ============================================================
+     DESKTOP HOVER SCALE
+  ============================================================ */
 
   const getProjectTransform = (project: (typeof projects)[number]) => {
     if (activeProject !== project.id) {
@@ -184,29 +155,27 @@ export const ProjectsSection = () => {
         aspectRatio: `${SVG_WIDTH} / ${SVG_HEIGHT}`,
       }}
     >
+      {/* ==========================================================
+          DESKTOP / ORIGINAL — DO NOT CHANGE
+      =========================================================== */}
+
       <svg
         viewBox={`0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`}
         preserveAspectRatio="none"
         className="
           absolute
           inset-0
+          hidden
+          mobile:block
           h-full
           w-full
           overflow-visible
         "
       >
         <defs>
-          {/* =====================================================
-              MAIN FIELD CLIP
-          ====================================================== */}
-
           <clipPath id="projects-field-clip">
             <polygon points={field} />
           </clipPath>
-
-          {/* =====================================================
-              INDIVIDUAL CELL CLIPS
-          ====================================================== */}
 
           {projects.map((project) => (
             <clipPath
@@ -216,10 +185,6 @@ export const ProjectsSection = () => {
               <path d={project.cellPath} />
             </clipPath>
           ))}
-
-          {/* =====================================================
-              DESIGN HATCH
-          ====================================================== */}
 
           <pattern
             id="projects-design-hatch"
@@ -239,10 +204,6 @@ export const ProjectsSection = () => {
             />
           </pattern>
 
-          {/* =====================================================
-              RESEARCH HATCH
-          ====================================================== */}
-
           <pattern
             id="projects-research-hatch"
             width="12"
@@ -260,10 +221,6 @@ export const ProjectsSection = () => {
               strokeOpacity="0.42"
             />
           </pattern>
-
-          {/* =====================================================
-              DEVELOPMENT HATCH
-          ====================================================== */}
 
           <pattern
             id="projects-develop-hatch"
@@ -283,10 +240,6 @@ export const ProjectsSection = () => {
             />
           </pattern>
 
-          {/* =====================================================
-              IMAGE GRADIENT
-          ====================================================== */}
-
           <linearGradient
             id="project-image-gradient"
             x1="0"
@@ -295,16 +248,10 @@ export const ProjectsSection = () => {
             y2="1"
           >
             <stop offset="0%" stopColor="#000" stopOpacity="0.12" />
-
             <stop offset="50%" stopColor="#000" stopOpacity="0" />
-
             <stop offset="100%" stopColor="#000" stopOpacity="0.30" />
           </linearGradient>
         </defs>
-
-        {/* =====================================================
-            FIELD BACKGROUND
-        ====================================================== */}
 
         <polygon
           points={field}
@@ -314,21 +261,12 @@ export const ProjectsSection = () => {
           strokeWidth="1.2"
         />
 
-        {/* =====================================================
-            PROJECT CELLS
-        ====================================================== */}
-
         {projects.map((project) => {
           const isActive = activeProject === project.id;
-
           const hasActiveProject = activeProject !== null;
 
           return (
             <g key={project.id}>
-              {/* =================================================
-                  VISUAL GROUP
-              ================================================= */}
-
               <g
                 transform={getProjectTransform(project)}
                 style={{
@@ -338,19 +276,10 @@ export const ProjectsSection = () => {
                     "transform 420ms cubic-bezier(0.22, 1, 0.36, 1), opacity 350ms ease",
 
                   transformBox: "view-box",
-
                   pointerEvents: "none",
                 }}
               >
-                {/* =================================================
-                    HATCH
-                ================================================= */}
-
                 <path d={project.cellPath} fill={`url(#${project.hatch})`} />
-
-                {/* =================================================
-                    ACTIVE COLOR
-                ================================================= */}
 
                 <path
                   d={project.cellPath}
@@ -363,14 +292,6 @@ export const ProjectsSection = () => {
                 />
 
                 <g clipPath={`url(#project-cell-clip-${project.id})`}>
-                  {/* =================================================
-                      HEADER
-                      NUMBER → TITLE
-                  ================================================= */}
-
-                  {/* NUMBER */}
-
-                  {/* TITLE */}
                   <text
                     x={project.contentX}
                     y="1965"
@@ -388,10 +309,6 @@ export const ProjectsSection = () => {
                     </tspan>
                   </text>
 
-                  {/* =================================================
-                      IMAGE
-                  ================================================= */}
-
                   <image
                     href={project.image}
                     x={project.imageX}
@@ -405,10 +322,6 @@ export const ProjectsSection = () => {
                       transition: "opacity 450ms ease",
                     }}
                   />
-
-                  {/* =================================================
-                      IMAGE DARK OVERLAY
-                  ================================================= */}
 
                   <rect
                     x={project.imageX}
@@ -437,12 +350,8 @@ export const ProjectsSection = () => {
                     }}
                   />
 
-                  {/* =================================================
-                      DESCRIPTION
-                  ================================================= */}
-
                   <text
-                    x={project.contentX + 100}
+                    x={project.contentX}
                     y="2180"
                     fill="rgba(255,255,255,0.62)"
                     fontSize="13"
@@ -457,11 +366,6 @@ export const ProjectsSection = () => {
                     </tspan>
                   </text>
                 </g>
-
-                {/* =================================================
-                    ACTIVE BORDER
-                    دقیقاً همان شکل سلول
-                ================================================= */}
 
                 <path
                   d={project.cellPath}
@@ -478,11 +382,6 @@ export const ProjectsSection = () => {
                 />
               </g>
 
-              {/* =================================================
-                  REAL HIT AREA
-                  خود سلول، نه مستطیل
-              ================================================= */}
-
               <path
                 d={project.cellPath}
                 fill="transparent"
@@ -493,10 +392,6 @@ export const ProjectsSection = () => {
             </g>
           );
         })}
-
-        {/* =====================================================
-            DIVISION LINES
-        ====================================================== */}
 
         <line
           x1="827"
@@ -518,10 +413,6 @@ export const ProjectsSection = () => {
           pointerEvents="none"
         />
 
-        {/* =====================================================
-            OUTER FIELD BORDER
-        ====================================================== */}
-
         <polygon
           points={field}
           fill="none"
@@ -531,9 +422,261 @@ export const ProjectsSection = () => {
         />
       </svg>
 
-      {/* =====================================================
-          PROJECT LABEL
-      ====================================================== */}
+      {/* ==========================================================
+          MOBILE
+          3 RECTANGULAR CARDS — STACKED VERTICALLY
+      =========================================================== */}
+
+      <div
+        className="
+          absolute
+          left-0
+          top-[100%]
+          block
+          mobile:hidden
+          w-full
+          px-[7%]
+          pb-8
+        "
+      >
+        {/* MOBILE HEADER */}
+
+        <div className="pt-16">
+          <p
+            className="
+              mb-2
+              text-[8px]
+              uppercase
+              tracking-[0.28em]
+              text-white/35
+            "
+          >
+            02 — Projects
+          </p>
+
+          <h2
+            className="
+              text-[clamp(2rem,9vw,3rem)]
+              font-light
+              leading-[0.95]
+              tracking-[-0.05em]
+              text-white/70
+            "
+          >
+            Small experiments
+          </h2>
+
+          <p
+            className="
+              mt-3
+              max-w-[330px]
+              text-[0.7rem]
+              leading-relaxed
+              text-white/35
+            "
+          >
+            Exploring how data, code and urban systems can generate new ways of
+            seeing and understanding cities.
+          </p>
+        </div>
+
+        {/* MOBILE PROJECT CARDS */}
+
+        <div className="mt-8 flex flex-col gap-3">
+          {/* PROJECT 01 */}
+
+          <div
+            className="
+              flex
+              h-[92px]
+              w-full
+              items-center
+              overflow-hidden
+              border
+              border-white/10
+              border-l-2
+              border-l-[#e46a63]
+              bg-[#151515]/90
+            "
+          >
+            <div className="flex w-[42%] flex-col px-3">
+              <span
+                className="
+                  text-[8px]
+                  tracking-[0.2em]
+                  text-[#e46a63]/70
+                "
+              >
+                01
+              </span>
+
+              <span
+                className="
+                  mt-1
+                  text-[11px]
+                  leading-tight
+                  text-white/85
+                "
+              >
+                RANDOM
+                <br />
+                URBAN BLOCK
+              </span>
+
+              <span
+                className="
+                  mt-2
+                  text-[7px]
+                  text-white/35
+                "
+              >
+                Urban design · experiment
+              </span>
+            </div>
+
+            <img
+              src="/projects/randomBlock.jpg"
+              alt="Random Urban Block"
+              className="
+                h-[76px]
+                w-[58%]
+                object-cover
+                opacity-90
+              "
+            />
+          </div>
+
+          {/* PROJECT 02 */}
+
+          <div
+            className="
+              flex
+              h-[92px]
+              w-full
+              items-center
+              overflow-hidden
+              border
+              border-white/10
+              border-l-2
+              border-l-[#7d9be8]
+              bg-[#151515]/90
+            "
+          >
+            <div className="flex w-[42%] flex-col px-3">
+              <span
+                className="
+                  text-[8px]
+                  tracking-[0.2em]
+                  text-[#7d9be8]/80
+                "
+              >
+                02
+              </span>
+
+              <span
+                className="
+                  mt-1
+                  text-[11px]
+                  leading-tight
+                  text-white/85
+                "
+              >
+                10 MINUTES
+                <br />
+                CITY
+              </span>
+
+              <span
+                className="
+                  mt-2
+                  text-[7px]
+                  text-white/35
+                "
+              >
+                Urban data · research
+              </span>
+            </div>
+
+            <img
+              src="/projects/10MinutesCity.jpg"
+              alt="10 Minutes City"
+              className="
+                h-[76px]
+                w-[58%]
+                object-cover
+                opacity-90
+              "
+            />
+          </div>
+
+          {/* PROJECT 03 */}
+
+          <div
+            className="
+              flex
+              h-[92px]
+              w-full
+              items-center
+              overflow-hidden
+              border
+              border-white/10
+              border-l-2
+              border-l-[#7fc6a4]
+              bg-[#151515]/90
+            "
+          >
+            <div className="flex w-[42%] flex-col px-3">
+              <span
+                className="
+                  text-[8px]
+                  tracking-[0.2em]
+                  text-[#7fc6a4]/80
+                "
+              >
+                03
+              </span>
+
+              <span
+                className="
+                  mt-1
+                  text-[11px]
+                  leading-tight
+                  text-white/85
+                "
+              >
+                WALKABILITY
+                <br />
+                MAP
+              </span>
+
+              <span
+                className="
+                  mt-2
+                  text-[7px]
+                  text-white/35
+                "
+              >
+                Code + walkability · systems
+              </span>
+            </div>
+
+            <img
+              src="/projects/walkabilityMap.png"
+              alt="Walkability Map"
+              className="
+                h-[76px]
+                w-[58%]
+                object-cover
+                opacity-90
+              "
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* ==========================================================
+          DESKTOP PROJECT LABEL
+      =========================================================== */}
 
       <div
         className="
@@ -541,6 +684,8 @@ export const ProjectsSection = () => {
           absolute
           left-[20%]
           top-[53%]
+          hidden
+          mobile:block
           w-[320px]
         "
       >
