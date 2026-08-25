@@ -7,7 +7,7 @@ export default function RandomUrbanBlockPage() {
   const [hover, setHover] = useState<number | null>(null);
   const [seed, setSeed] = useState(42);
 
-  const blocks = generateUrbanBlock(seed);
+  const { blocks, streets } = generateUrbanBlock(seed);
 
   const sitePoints = `
     150,80
@@ -110,9 +110,19 @@ export default function RandomUrbanBlockPage() {
       >
         <defs>
           <clipPath id="siteClip">
-            <polygon points={sitePoints} />
+            <polygon
+              points="
+150,80
+720,80
+780,150
+780,420
+120,420
+80,330
+"
+            />
           </clipPath>
         </defs>
+     
 
         {/* SITE BASE */}
 
@@ -122,6 +132,28 @@ export default function RandomUrbanBlockPage() {
           stroke="rgba(255,255,255,.35)"
           strokeWidth="2"
         />
+
+        {streets.map((street) => {
+          return street.direction === "vertical" ? (
+            <rect
+              key={street.id}
+              x={street.x}
+              y={80}
+              width={street.width}
+              height={340}
+              fill="#222"
+            />
+          ) : (
+            <rect
+              key={street.id}
+              x={120}
+              y={street.y}
+              width={600}
+              height={street.width}
+              fill="#222"
+            />
+          );
+        })}
 
         {/* PARCEL PUZZLE */}
 
