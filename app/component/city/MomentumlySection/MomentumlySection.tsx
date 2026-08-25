@@ -1,220 +1,389 @@
 "use client";
 
+import { useState } from "react";
+
 export const MomentumlySection = () => {
+  const [active, setActive] = useState(false);
+
+  /* ============================================================
+   * SVG COORDINATE SYSTEM
+   * دقیقاً همان coordinate system بخش Projects
+   * ============================================================ */
+
+  const SVG_WIDTH = 1403.28;
+  const SVG_HEIGHT = 3876.47;
+
+  /* ============================================================
+   * MOMENTUMLY POSITION
+   * ============================================================ */
+
+  const diamond = {
+    cx: 760,
+    cy: 1199,
+    half: 200,
+    radius: 60,
+  };
+
+  /* ============================================================
+   * ROUNDED DIAMOND
+   * ============================================================ */
+
+  const createRoundedDiamond = (
+    cx: number,
+    cy: number,
+    half: number,
+    radius: number,
+  ) => {
+    const top = {
+      x: cx,
+      y: cy - half,
+    };
+
+    const right = {
+      x: cx + half,
+      y: cy,
+    };
+
+    const bottom = {
+      x: cx,
+      y: cy + half,
+    };
+
+    const left = {
+      x: cx - half,
+      y: cy,
+    };
+
+    return `
+      M ${top.x + radius} ${top.y + radius}
+      L ${right.x - radius} ${right.y - radius}
+      Q ${right.x} ${right.y}
+        ${right.x - radius} ${right.y + radius}
+      L ${bottom.x + radius} ${bottom.y - radius}
+      Q ${bottom.x} ${bottom.y}
+        ${bottom.x - radius} ${bottom.y - radius}
+      L ${left.x + radius} ${left.y + radius}
+      Q ${left.x} ${left.y}
+        ${left.x + radius} ${left.y - radius}
+      L ${top.x - radius} ${top.y + radius}
+      Q ${top.x} ${top.y}
+        ${top.x + radius} ${top.y + radius}
+
+      Z
+    `;
+  };
+
+  /* ============================================================
+   * OUTER / INNER DIAMOND
+   * ============================================================ */
+
+  const outerPath = createRoundedDiamond(
+    diamond.cx,
+    diamond.cy,
+    diamond.half,
+    diamond.radius,
+  );
+
+  const innerPath = createRoundedDiamond(diamond.cx, diamond.cy, 72, 14);
+
+  /* ============================================================
+   * SVG → HTML POSITION
+   * ============================================================ */
+
+  const diamondY = (diamond.cy / SVG_HEIGHT) * 100;
+
   return (
-    <div
+    <section
+      id="momentumly"
       className="
+        pointer-events-none
         absolute
-        left-[54.5%]
-        top-[145%]
+        left-0
+        top-0
         z-[20]
-        h-[800px]
         w-full
-        -translate-x-1/2
-        overflow-visible
       "
+      style={{
+        aspectRatio: `${SVG_WIDTH} / ${SVG_HEIGHT}`,
+      }}
     >
-      {/* =====================================================
-          MOMENTUMLY FIELD
-      ====================================================== */}
+      {/* =======================================================
+          SVG
+      ======================================================== */}
+
+      <svg
+        viewBox={`0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`}
+        preserveAspectRatio="none"
+        className="
+          absolute
+          inset-0
+          h-full
+          w-full
+          overflow-visible
+        "
+      >
+        {/* =====================================================
+            DIAMOND
+        ====================================================== */}
+
+        <g
+          pointerEvents="all"
+          onMouseEnter={() => setActive(true)}
+          onMouseLeave={() => setActive(false)}
+          style={{
+            cursor: "pointer",
+          }}
+        >
+          {/* OUTER */}
+
+          <path
+            d={outerPath}
+            fill="#7d9be8"
+            fillOpacity={active ? "0.22" : "0.12"}
+            stroke="#e46a63"
+            strokeWidth="1.5"
+            strokeOpacity={active ? "1" : "0.7"}
+            vectorEffect="non-scaling-stroke"
+            style={{
+              transition: "fill-opacity 500ms ease, stroke-opacity 500ms ease",
+            }}
+          />
+
+          {/* INNER */}
+
+          <path
+            d={innerPath}
+            fill="#7d9be8"
+            fillOpacity={active ? "0.15" : "0.08"}
+            stroke="#e46a63"
+            strokeWidth="1"
+            strokeOpacity={active ? "0.5" : "0.2"}
+            vectorEffect="non-scaling-stroke"
+            style={{
+              transition: "fill-opacity 500ms ease, stroke-opacity 500ms ease",
+            }}
+          />
+
+          {/* CENTER */}
+
+          <circle cx={diamond.cx} cy={diamond.cy} r="4" fill="#e46a63" />
+        </g>
+      </svg>
+
+      {/* =======================================================
+          PROJECT PREVIEW
+          HTML
+      ======================================================== */}
 
       <div
         className="
-          group/momentumly
+          pointer-events-none
           absolute
-          left-[50%]
-          top-[55%]
-          z-[30]
-          h-[clamp(140px,21vw,310px)]
-          w-[clamp(140px,21vw,310px)]
-          -translate-x-1/2
-          -translate-y-1/2
-          rotate-45
+          z-10
+          w-[43%]
+          max-w-[600px]
         "
+        style={{
+          /*
+           * کمی به راست‌تر از قبل
+           * تا Diamond به تصویر نزدیک‌تر شود
+           */
+          left: "5%",
+
+          /*
+           * دقیقاً هم‌تراز با مرکز Diamond
+           */
+          top: `${diamondY}%`,
+
+          transform: "translateY(-50%)",
+        }}
       >
-        {/* =================================================
-            DIAMOND
-        ================================================== */}
-
         <div
           className="
-            absolute
-            inset-0
-            rounded-[clamp(2rem,4vw,5rem)]
+            w-full
+            rounded-2xl
             border
-            border-[#e46a63]/70
-            bg-[#7d9be8]/[0.12]
-          "
-        >
-          <div
-            className="
-              absolute
-              inset-[clamp(2rem,5vw,5rem)]
-              rounded-[clamp(1.5rem,3vw,4rem)]
-              border
-              border-[#e46a63]/20
-              bg-[#7d9be8]/[0.08]
-            "
-          />
-        </div>
-
-        {/* =================================================
-            HOVER PREVIEW
-        ================================================== */}
-
-        <div
-          className="
-            pointer-events-none
-            absolute
-            right-[70%]
-            top-[150%]
-            z-[100]
-            w-[clamp(320px,34vw,520px)]
-            -translate-y-1/2
-            -rotate-45
-            translate-x-10
-            opacity-0
-            scale-[0.94]
-
+            border-white/20
+            bg-[#111111]
+            p-2
+            shadow-[0_30px_100px_rgba(0,0,0,0.65)]
             transition-all
-            duration-500
-            ease-out
-
-            group-hover/momentumly:translate-x-0
-            group-hover/momentumly:opacity-100
-            group-hover/momentumly:scale-100
+            duration-700
           "
-        >
-          {/* OUTER FRAME */}
+          style={{
+            opacity: active ? 1 : 0,
 
+            transform: active ? "scale(1)" : "scale(0.97)",
+          }}
+        >
           <div
             className="
-              relative
-              rounded-2xl
+              overflow-hidden
+              rounded-xl
               border
-              border-white/20
-              bg-[#111111]
-              p-2
-              shadow-[0_30px_100px_rgba(0,0,0,0.65)]
+              border-[#e46a63]/30
+              bg-[#181818]
             "
           >
-            {/* INNER FRAME */}
+            {/* =================================================
+                IMAGE
+            ================================================== */}
 
             <div
               className="
+                relative
+                aspect-video
+                w-full
                 overflow-hidden
-                rounded-xl
-                border
-                border-[#e46a63]/30
-                bg-[#181818]
+                bg-[#202020]
               "
             >
-              {/* IMAGE */}
+              <img
+                src="/projects/momentumly.png"
+                alt="Momentumly project preview"
+                className="
+                  block
+                  h-full
+                  w-full
+                  object-contain
+                "
+              />
 
               <div
                 className="
-                  relative
-                  aspect-video
-                  w-full
-                  overflow-hidden
-                  bg-[#202020]
+                  pointer-events-none
+                  absolute
+                  inset-0
+                  bg-gradient-to-t
+                  from-black/40
+                  via-transparent
+                  to-transparent
                 "
-              >
-                <img
-                  src="/projects/momentumly.png"
-                  alt="Momentumly project preview"
-                  className="
-                    h-full
-                    w-full
-                    object-contain
-                    transition-transform
-                    duration-700
-                    group-hover/momentumly:scale-[1.02]
-                  "
-                />
+              />
+            </div>
 
-                <div
-                  className="
-                    pointer-events-none
-                    absolute
-                    inset-0
-                    bg-gradient-to-t
-                    from-black/40
-                    via-transparent
-                    to-transparent
-                  "
-                />
+            {/* =================================================
+                PROJECT INFO
+            ================================================== */}
 
-             
-              </div>
-
-              {/* PROJECT INFO */}
-
-              <div className="px-5 py-4">
-                <div className="flex items-center justify-between">
-                  <p
-                    className="
-                      text-[9px]
-                      uppercase
-                      tracking-[0.22em]
-                      text-[#e46a63]
-                    "
-                  >
-                    01 — Product / Frontend
-                  </p>
-
-                  <span className="text-xs text-white/30">↗</span>
-                </div>
-
-                <h3
-                  className="
-                    mt-2
-                    text-xl
-                    font-medium
-                    tracking-[-0.03em]
-                    text-white
-                  "
-                >
-                  Momentumly
-                </h3>
-
+            <div
+              className="
+                px-[clamp(0.75rem,1.5vw,1.25rem)]
+                py-[clamp(0.65rem,1.2vw,1rem)]
+              "
+            >
+              <div className="flex items-center justify-between">
                 <p
                   className="
-                    mt-2
-                    max-w-[380px]
-                    text-xs
-                    leading-relaxed
-                    text-white/45
+                    text-[clamp(7px,0.65vw,9px)]
+                    uppercase
+                    tracking-[0.22em]
+                    text-[#e46a63]
                   "
                 >
-                  A task management experience designed to make starting easier.
+                  Product / Frontend
                 </p>
+
+                <span
+                  className="
+                    text-[clamp(9px,0.8vw,12px)]
+                    text-white/30
+                  "
+                >
+                  ↗
+                </span>
               </div>
+
+              <h3
+                className="
+                  mt-[clamp(0.35rem,0.6vw,0.5rem)]
+                  text-[clamp(0.85rem,1.5vw,1.25rem)]
+                  font-medium
+                  tracking-[-0.03em]
+                  text-white
+                "
+              >
+                Momentumly
+              </h3>
+
+              <p
+                className="
+                  mt-[clamp(0.3rem,0.5vw,0.5rem)]
+                  max-w-[380px]
+                  text-[clamp(7px,0.75vw,12px)]
+                  leading-relaxed
+                  text-white/45
+                "
+              >
+                A task management experience designed to make starting easier.
+              </p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* =====================================================
-          PROJECT INFO — TOP RIGHT
-      ====================================================== */}
+      {/* =======================================================
+          SMALL NOTE
+          دقیقاً زیر کارت
+      ======================================================== */}
 
       <div
         className="
+          pointer-events-none
           absolute
-          right-[clamp(6%,9vw,14%)]
-          top-[clamp(10%,11vw,16%)]
-          z-[50]
-          w-[clamp(240px,22vw,360px)]
+          z-10
+          w-[43%]
+          max-w-[600px]
         "
+        style={{
+          left: "6%",
+
+          /*
+           * کارت تقریباً وسط Diamond قرار دارد.
+           *
+           * این مقدار عمداً نزدیک به کارت است.
+           */
+          top: `calc(${diamondY}% + 8%)`,
+        }}
       >
         <p
           className="
-            mb-5
-            text-[10px]
+            border-l
+            border-[#e46a63]/30
+            pl-[clamp(0.5rem,1vw,1rem)]
+            text-[clamp(6px,0.65vw,10px)]
+            uppercase
+            leading-[1.7]
+            tracking-[0.18em]
+            text-white/25
+          "
+        >
+          Designing digital tools around behavior, friction and momentum.
+        </p>
+      </div>
+
+      {/* =======================================================
+          HEADER
+      ======================================================== */}
+
+      <div
+        className="
+          pointer-events-none
+          absolute
+          z-10
+          w-[27%]
+        "
+        style={{
+          left: "68%",
+          top: "24%",
+        }}
+      >
+        <p
+          className="
+            text-[clamp(7px,0.7vw,10px)]
             uppercase
             tracking-[0.25em]
-            text-white/40
+            text-[#e46a63]/70
           "
         >
           01 — PRODUCT / FRONTEND
@@ -222,9 +391,10 @@ export const MomentumlySection = () => {
 
         <h2
           className="
-            text-[clamp(2rem,4vw,4rem)]
+            mt-[clamp(0.4rem,0.8vw,0.75rem)]
+            text-[clamp(2rem,4vw,4.5rem)]
             font-medium
-            leading-[0.95]
+            leading-[0.9]
             tracking-[-0.05em]
             text-white
           "
@@ -234,9 +404,9 @@ export const MomentumlySection = () => {
 
         <p
           className="
-            mt-6
+            mt-[clamp(0.75rem,1.5vw,1.25rem)]
             max-w-[320px]
-            text-[clamp(0.9rem,1.2vw,1.1rem)]
+            text-[clamp(0.65rem,1vw,1.05rem)]
             leading-relaxed
             text-white/45
           "
@@ -244,26 +414,6 @@ export const MomentumlySection = () => {
           A task management experience designed to make starting easier.
         </p>
       </div>
-
-      {/* =====================================================
-          CENTER POINT
-      ====================================================== */}
-
-      <div
-        className="
-          absolute
-          left-1/2
-          top-[55%]
-          z-[40]
-          h-2
-          w-2
-          -translate-x-1/2
-          -translate-y-1/2
-          rounded-full
-          bg-[#e46a63]
-          shadow-[0_0_25px_rgba(228,106,99,0.45)]
-        "
-      />
-    </div>
+    </section>
   );
 };
