@@ -437,7 +437,7 @@ mobile:h-[350px]
 
                     <text
                       x="875"
-                      y="265"
+                      y="300"
                       fill="white"
                       fontSize="13"
                       opacity="0"
