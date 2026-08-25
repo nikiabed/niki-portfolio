@@ -13,7 +13,7 @@ export const ThesisSection = () => {
   const SVG_HEIGHT = 3876.47;
 
   /* ============================================================
-   * THESIS FIELD
+   * DESKTOP THESIS FIELD
    * ============================================================ */
 
   const field = {
@@ -21,6 +21,21 @@ export const ThesisSection = () => {
     cy: 2867,
     size: 120,
     radius: 60,
+  };
+
+  /* ============================================================
+   * MOBILE THESIS FIELD
+   *
+   * EXACTLY LIKE MOMENTUMLY:
+   * position + size are defined directly in SVG coordinates.
+   * ============================================================ */
+
+  const mobileField = {
+    cx: 580,
+    cy: 6010,
+    width: 500,
+    height: 520,
+    radius: 100,
   };
 
   /* ============================================================
@@ -65,7 +80,7 @@ export const ThesisSection = () => {
   };
 
   /* ============================================================
-   * OUTER / INNER FIELD
+   * DESKTOP OUTER / INNER
    * ============================================================ */
 
   const outerPath = createRoundedSquare(
@@ -104,7 +119,7 @@ export const ThesisSection = () => {
       }}
     >
       {/* =======================================================
-          DESKTOP
+          MAIN SVG
       ======================================================== */}
 
       <svg
@@ -113,20 +128,23 @@ export const ThesisSection = () => {
         className="
           absolute
           inset-0
-          hidden
-          mobile:block
           h-full
           w-full
           overflow-visible
         "
       >
+        {/* =====================================================
+            DESKTOP THESIS
+            DON'T TOUCH
+        ====================================================== */}
+
         <g
           pointerEvents="all"
+          className="hidden mobile:block"
           onMouseEnter={() => setHovered(true)}
           onMouseLeave={() => setHovered(false)}
           style={{
             cursor: "pointer",
-            transition: "transform 500ms cubic-bezier(0.22, 1, 0.36, 1)",
           }}
           transform={
             hovered
@@ -138,6 +156,8 @@ export const ThesisSection = () => {
               : "scale(1)"
           }
         >
+          {/* OUTER */}
+
           <path
             d={outerPath}
             fill="url(#thesis-gradient)"
@@ -151,6 +171,8 @@ export const ThesisSection = () => {
             }}
           />
 
+          {/* INNER */}
+
           <path
             d={innerPath}
             fill="none"
@@ -159,6 +181,8 @@ export const ThesisSection = () => {
             vectorEffect="non-scaling-stroke"
           />
 
+          {/* MARKER */}
+
           <circle
             cx={field.cx + field.size - 25}
             cy={field.cy - field.size + 25}
@@ -166,6 +190,8 @@ export const ThesisSection = () => {
             fill="#e46a63"
             opacity="0.7"
           />
+
+          {/* LABEL */}
 
           <text
             x={field.cx - field.size + 24}
@@ -182,7 +208,79 @@ export const ThesisSection = () => {
           </text>
         </g>
 
+        {/* =====================================================
+            MOBILE THESIS
+            FIXED DIRECTLY INSIDE SVG
+            SAME SYSTEM AS MOMENTUMLY
+        ====================================================== */}
+
+        <g pointerEvents="none" className="block mobile:hidden">
+          {/* ==================================================
+              OUTER FIELD
+          ================================================== */}
+
+          <rect
+            x={mobileField.cx - mobileField.width / 2}
+            y={mobileField.cy - mobileField.height / 2}
+            width={mobileField.width}
+            height={mobileField.height}
+            rx={mobileField.radius}
+            fill="url(#mobile-thesis-gradient)"
+            fillOpacity="0.12"
+            stroke="#e46a63"
+            strokeWidth="1.5"
+            strokeOpacity="0.7"
+            vectorEffect="non-scaling-stroke"
+          />
+
+          {/* ==================================================
+              INNER BORDER
+          ================================================== */}
+
+          <rect
+            x={mobileField.cx - mobileField.width / 2 + 12}
+            y={mobileField.cy - mobileField.height / 2 + 12}
+            width={mobileField.width - 24}
+            height={mobileField.height - 24}
+            rx={mobileField.radius - 8}
+            fill="none"
+            stroke="rgba(255,255,255,0.08)"
+            strokeWidth="1"
+            vectorEffect="non-scaling-stroke"
+          />
+
+          {/* ==================================================
+              MARKER
+          ================================================== */}
+
+          <circle
+            cx={mobileField.cx + mobileField.width / 2 - 27}
+            cy={mobileField.cy - mobileField.height / 2 + 27}
+            r="4"
+            fill="#e46a63"
+          />
+
+          {/* ==================================================
+              LABEL
+          ================================================== */}
+
+          <text
+            x={mobileField.cx - mobileField.width / 2 + 32}
+            y={mobileField.cy + mobileField.height / 2 - 30}
+            fill="#e46a63"
+            fontSize="25"
+          >
+            VIEW THESIS →
+          </text>
+        </g>
+
+        {/* =====================================================
+            GRADIENTS
+        ====================================================== */}
+
         <defs>
+          {/* DESKTOP */}
+
           <linearGradient id="thesis-gradient" x1="0" y1="0" x2="1" y2="1">
             <stop offset="0%" stopColor="#7d9be8" stopOpacity="0.30" />
 
@@ -190,11 +288,28 @@ export const ThesisSection = () => {
 
             <stop offset="100%" stopColor="#7fc6a4" stopOpacity="0.35" />
           </linearGradient>
+
+          {/* MOBILE */}
+
+          <linearGradient
+            id="mobile-thesis-gradient"
+            x1="0%"
+            y1="0%"
+            x2="100%"
+            y2="100%"
+          >
+            <stop offset="0%" stopColor="#7d9be8" />
+
+            <stop offset="50%" stopColor="#151515" />
+
+            <stop offset="100%" stopColor="#7fc6a4" />
+          </linearGradient>
         </defs>
       </svg>
 
       {/* =======================================================
           DESKTOP HEADER
+          UNCHANGED
       ======================================================== */}
 
       <div
@@ -253,191 +368,90 @@ export const ThesisSection = () => {
       </div>
 
       {/* =======================================================
-          MOBILE
+          MOBILE HEADER
+          POSITIONED IN SAME SVG-BASED COORDINATE SYSTEM
       ======================================================== */}
 
       <div
         className="
+          pointer-events-none
           absolute
-          left-0
-          top-[132%]
+          z-10
           block
           mobile:hidden
           w-full
           px-[7%]
         "
+        style={{
+          left: "0",
+          top: `${(mobileField.cy / SVG_HEIGHT) * 100 - 10}%`,
+          transform: "translateY(-100%)",
+        }}
       >
-        {/* ====================================================
-            MOBILE THESIS HEADER
-        ===================================================== */}
-
-        <div className="pt-8">
-          <p
-            className="
-              mb-2
-              text-[8px]
-              uppercase
-              tracking-[0.28em]
-              text-white/35
-            "
-          >
-            03 — Thesis
-          </p>
-
-          <h2
-            className="
-              max-w-[340px]
-              text-4xl
-              font-light
-              leading-[0.95]
-              tracking-[-0.05em]
-              text-white/75
-            "
-          >
-            Spatial Justice
-            <br />
-            of Valiasr Street
-          </h2>
-
-          <p
-            className="
-              mt-4
-              max-w-[330px]
-              text-[0.7rem]
-              leading-relaxed
-              text-white/35
-            "
-          >
-            Small experiments exploring how data, code and urban systems can
-            generate new ways of seeing and understanding cities.
-          </p>
-        </div>
-
-        {/* ====================================================
-            MOBILE THESIS FIELD
-            FIXED SVG SIZE / STABLE RESPONSIVE POSITION
-        ===================================================== */}
-
-        <svg
-          viewBox="0 0 390 420"
-          preserveAspectRatio="none"
+        <p
           className="
-    mt-8
-    block
-    h-[420px]
-    w-full
-    overflow-visible
-  "
+            mb-2
+            text-[8px]
+            uppercase
+            tracking-[0.28em]
+            text-white/35
+          "
         >
-          <defs>
-            <linearGradient
-              id="mobile-thesis-gradient"
-              x1="0"
-              y1="0"
-              x2="1"
-              y2="1"
-            >
-              <stop offset="0%" stopColor="#7d9be8" stopOpacity="0.30" />
-              <stop offset="50%" stopColor="#151515" stopOpacity="0.78" />
-              <stop offset="100%" stopColor="#7fc6a4" stopOpacity="0.35" />
-            </linearGradient>
-          </defs>
+          03 — Thesis
+        </p>
 
-          {/* ==================================================
-      FIXED MOBILE SQUARE
-      موقعیت با مختصات SVG
-  ================================================== */}
-
-          <g
-            pointerEvents="all"
-            onMouseEnter={() => setHovered(true)}
-            onMouseLeave={() => setHovered(false)}
-          >
-            {/* OUTER */}
-
-            <rect
-              x="37"
-              y="50"
-              width="250"
-              height="280"
-              rx="64"
-              fill="url(#mobile-thesis-gradient)"
-              fillOpacity={hovered ? 1 : 0.85}
-              stroke="#e46a63"
-              strokeWidth="1.5"
-              strokeOpacity={hovered ? 1 : 0.8}
-              style={{
-                transition:
-                  "fill-opacity 500ms ease, stroke-opacity 500ms ease",
-              }}
-            />
-
-
-            {/* MARKER */}
-
-            <circle cx="263" cy="109" r="4" fill="#e46a63" opacity="0.7" />
-
-            {/* LABEL */}
-
-            <text
-              x="70"
-              y="300"
-              fill="#e46a63"
-              fontSize="9"
-              style={{
-                opacity: hovered ? 1 : 0.75,
-                transition: "opacity 300ms ease",
-              }}
-            >
-              VIEW THESIS →
-            </text>
-
-            {/* CENTER CONTENT */}
-
-            <text
-              x="160"
-              y="210"
-              textAnchor="middle"
-              fill="rgba(255,255,255,0.30)"
-              fontSize="7"
-              letterSpacing="2"
-            >
-              RESEARCH
-            </text>
-
-            <text
-              x="160"
-              y="235"
-              textAnchor="middle"
-              fill="rgba(255,255,255,0.70)"
-              fontSize="10"
-              letterSpacing="0.4"
-            >
-              Spatial Justice
-            </text>
-
-            <text
-              x="160"
-              y="250"
-              textAnchor="middle"
-              fill="rgba(255,255,255,0.70)"
-              fontSize="10"
-              letterSpacing="0.4"
-            >
-              Valiasr Street
-            </text>
-          </g>
-        </svg>
-
-        {/* ====================================================
-            SMALL FOOTNOTE
-        ===================================================== */}
+        <h2
+          className="
+            max-w-[340px]
+            text-4xl
+            font-light
+            leading-[0.95]
+            tracking-[-0.05em]
+            text-white/75
+          "
+        >
+          Spatial Justice
+          <br />
+          of Valiasr Street
+        </h2>
 
         <p
           className="
-            mx-auto
-            text-center
-            text-[12px]
+            mt-4
+            max-w-[330px]
+            text-[0.7rem]
+            leading-relaxed
+            text-white/35
+          "
+        >
+          Small experiments exploring how data, code and urban systems can
+          generate new ways of seeing and understanding cities.
+        </p>
+      </div>
+
+      {/* =======================================================
+          MOBILE FOOTNOTE
+      ======================================================== */}
+
+      <div
+        className="
+          pointer-events-none
+          absolute
+          z-10
+          block
+          mobile:hidden
+          w-full
+          px-[7%]
+          text-center
+        "
+        style={{
+          left: "0",
+          top: `${(mobileField.cy / SVG_HEIGHT) * 100 + 11}%`,
+        }}
+      >
+        <p
+          className="
+            text-[13px]
             text-white/25
           "
         >
