@@ -402,14 +402,15 @@ export const ThesisSection = () => {
 
         <h2
           className="
-            max-w-[340px]
-            text-2xl
-            font-light
-            text-white/75
-          "
+    max-w-[340px]
+    text-2xl
+    font-light
+    leading-[1.15]
+    tracking-[-0.025em]
+    text-white/75
+  "
         >
-          Spatial Justice
-          of Valiasr Street
+          Spatial Justice of Valiasr Street
         </h2>
 
         <p

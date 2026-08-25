@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 
 type ProjectId = 1 | 2 | 3;
@@ -15,13 +16,13 @@ export const ProjectsSection = () => {
   ============================================================ */
 
   const field = `
-    768,1902.47 
-    1032.63,1902.47 
-    1121.68,2022.47 
-    1121.52,2227.47 
-    1013.02,2329.15 
-    779.40,2329.15 
-    679.52,2209.47 
+    768,1902.47
+    1032.63,1902.47
+    1121.68,2022.47
+    1121.52,2227.47
+    1013.02,2329.15
+    779.40,2329.15
+    679.52,2209.47
     679.43,2027.75
   `;
 
@@ -123,7 +124,9 @@ export const ProjectsSection = () => {
      DESKTOP HOVER SCALE
   ============================================================ */
 
-  const getProjectTransform = (project: (typeof projects)[number]) => {
+  const getProjectTransform = (
+    project: (typeof projects)[number],
+  ) => {
     if (activeProject !== project.id) {
       return "scale(1)";
     }
@@ -156,7 +159,7 @@ export const ProjectsSection = () => {
       }}
     >
       {/* ==========================================================
-          DESKTOP / ORIGINAL — DO NOT CHANGE
+          DESKTOP / ORIGINAL
       =========================================================== */}
 
       <svg
@@ -253,6 +256,8 @@ export const ProjectsSection = () => {
           </linearGradient>
         </defs>
 
+        {/* MAIN FIELD */}
+
         <polygon
           points={field}
           fill="#151515"
@@ -261,16 +266,23 @@ export const ProjectsSection = () => {
           strokeWidth="1.2"
         />
 
+        {/* PROJECTS */}
+
         {projects.map((project) => {
           const isActive = activeProject === project.id;
           const hasActiveProject = activeProject !== null;
 
           return (
             <g key={project.id}>
+              {/* ==================================================
+                  VISUAL PROJECT
+              ================================================== */}
+
               <g
                 transform={getProjectTransform(project)}
                 style={{
-                  opacity: hasActiveProject && !isActive ? 0.25 : 1,
+                  opacity:
+                    hasActiveProject && !isActive ? 0.25 : 1,
 
                   transition:
                     "transform 420ms cubic-bezier(0.22, 1, 0.36, 1), opacity 350ms ease",
@@ -279,7 +291,14 @@ export const ProjectsSection = () => {
                   pointerEvents: "none",
                 }}
               >
-                <path d={project.cellPath} fill={`url(#${project.hatch})`} />
+                {/* HATCH */}
+
+                <path
+                  d={project.cellPath}
+                  fill={`url(#${project.hatch})`}
+                />
+
+                {/* ACTIVE COLOR */}
 
                 <path
                   d={project.cellPath}
@@ -291,7 +310,13 @@ export const ProjectsSection = () => {
                   }}
                 />
 
-                <g clipPath={`url(#project-cell-clip-${project.id})`}>
+                {/* CONTENT */}
+
+                <g
+                  clipPath={`url(#project-cell-clip-${project.id})`}
+                >
+                  {/* TITLE */}
+
                   <text
                     x={project.contentX}
                     y="1965"
@@ -300,14 +325,22 @@ export const ProjectsSection = () => {
                     fontWeight="400"
                     letterSpacing="0.5"
                   >
-                    <tspan x={project.contentX + 10} dy="50">
+                    <tspan
+                      x={project.contentX + 10}
+                      dy="50"
+                    >
                       {project.title[0]}
                     </tspan>
 
-                    <tspan x={project.contentX + 10} dy="15">
+                    <tspan
+                      x={project.contentX + 10}
+                      dy="15"
+                    >
                       {project.title[1]}
                     </tspan>
                   </text>
+
+                  {/* IMAGE */}
 
                   <image
                     href={project.image}
@@ -323,6 +356,8 @@ export const ProjectsSection = () => {
                     }}
                   />
 
+                  {/* IMAGE DARK OVERLAY */}
+
                   <rect
                     x={project.imageX}
                     y="2050"
@@ -337,6 +372,8 @@ export const ProjectsSection = () => {
                     }}
                   />
 
+                  {/* IMAGE GRADIENT */}
+
                   <rect
                     x={project.imageX}
                     y="2050"
@@ -350,6 +387,8 @@ export const ProjectsSection = () => {
                     }}
                   />
 
+                  {/* DESCRIPTION */}
+
                   <text
                     x={project.contentX}
                     y="2180"
@@ -357,15 +396,23 @@ export const ProjectsSection = () => {
                     fontSize="13"
                     letterSpacing="0.35"
                   >
-                    <tspan x={project.contentX} dy="0">
+                    <tspan
+                      x={project.contentX}
+                      dy="0"
+                    >
                       {project.description[0]}
                     </tspan>
 
-                    <tspan x={project.contentX} dy="12">
+                    <tspan
+                      x={project.contentX}
+                      dy="12"
+                    >
                       {project.description[1]}
                     </tspan>
                   </text>
                 </g>
+
+                {/* ACTIVE BORDER */}
 
                 <path
                   d={project.cellPath}
@@ -382,16 +429,47 @@ export const ProjectsSection = () => {
                 />
               </g>
 
-              <path
-                d={project.cellPath}
-                fill="transparent"
-                pointerEvents="all"
-                onMouseEnter={() => setActiveProject(project.id)}
-                onMouseLeave={() => setActiveProject(null)}
-              />
+              {/* ==================================================
+                  CLICK / HOVER AREA
+              ================================================== */}
+
+              {project.id === 3 ? (
+                <a
+                  href="/walkabilitymap"
+                  onMouseEnter={() =>
+                    setActiveProject(project.id)
+                  }
+                  onMouseLeave={() =>
+                    setActiveProject(null)
+                  }
+                  style={{
+                    cursor: "pointer",
+                  }}
+                >
+                  <path
+                    d={project.cellPath}
+                    fill="transparent"
+                    pointerEvents="all"
+                  />
+                </a>
+              ) : (
+                <path
+                  d={project.cellPath}
+                  fill="transparent"
+                  pointerEvents="all"
+                  onMouseEnter={() =>
+                    setActiveProject(project.id)
+                  }
+                  onMouseLeave={() =>
+                    setActiveProject(null)
+                  }
+                />
+              )}
             </g>
           );
         })}
+
+        {/* DIVIDER 1 */}
 
         <line
           x1="827"
@@ -403,6 +481,8 @@ export const ProjectsSection = () => {
           pointerEvents="none"
         />
 
+        {/* DIVIDER 2 */}
+
         <line
           x1="972"
           y1="1902.47"
@@ -412,6 +492,8 @@ export const ProjectsSection = () => {
           strokeWidth="1"
           pointerEvents="none"
         />
+
+        {/* OUTER BORDER */}
 
         <polygon
           points={field}
@@ -424,7 +506,7 @@ export const ProjectsSection = () => {
 
       {/* ==========================================================
           MOBILE
-          3 RECTANGULAR CARDS — STACKED VERTICALLY
+          3 RECTANGULAR CARDS
       =========================================================== */}
 
       <div
@@ -475,8 +557,9 @@ export const ProjectsSection = () => {
               text-white/35
             "
           >
-            Exploring how data, code and urban systems can generate new ways of
-            seeing and understanding cities.
+            Exploring how data, code and urban systems can
+            generate new ways of seeing and understanding
+            cities.
           </p>
         </div>
 
@@ -609,10 +692,12 @@ export const ProjectsSection = () => {
             />
           </div>
 
-          {/* PROJECT 03 */}
+          {/* PROJECT 03 — WALKABILITY MAP */}
 
-          <div
+          <Link
+            href="/walkabilitymap"
             className="
+              group
               flex
               h-[92px]
               w-full
@@ -623,6 +708,11 @@ export const ProjectsSection = () => {
               border-l-2
               border-l-[#7fc6a4]
               bg-[#151515]/90
+              transition-all
+              duration-300
+              hover:-translate-y-1
+              hover:border-white/20
+              hover:bg-[#1b1b1b]
             "
           >
             <div className="flex w-[42%] flex-col px-3">
@@ -668,9 +758,12 @@ export const ProjectsSection = () => {
                 w-[58%]
                 object-cover
                 opacity-90
+                transition-opacity
+                duration-300
+                group-hover:opacity-100
               "
             />
-          </div>
+          </Link>
         </div>
       </div>
 
@@ -715,14 +808,15 @@ export const ProjectsSection = () => {
         <p
           className="
             mt-2
-            max-w-[300px]
             text-md
+            max-w-[300px]
             leading-relaxed
             text-white/35
           "
         >
-          Exploring how data, code and urban systems can generate new ways of
-          seeing and understanding cities.
+          Exploring how data, code and urban systems can
+          generate new ways of seeing and understanding
+          cities.
         </p>
       </div>
     </section>

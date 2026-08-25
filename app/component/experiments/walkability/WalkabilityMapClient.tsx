@@ -3,7 +3,7 @@
 import { useState } from "react";
 import dynamic from "next/dynamic";
 import { POI_CONFIG } from "./poiIcons";
-import { Search } from "lucide-react";
+import { ArrowLeft, Search } from "lucide-react";
 
 const LeafletMap = dynamic(
   () => import("./LeafletMap").then((mod) => mod.LeafletMap),
@@ -40,6 +40,19 @@ export const WalkabilityMapClient = () => {
   const [walkingTime, setWalkingTime] = useState<WalkingTime>(10);
   const [searchQuery, setSearchQuery] = useState("");
   const [searching, setSearching] = useState(false);
+
+  const [selectedLocation, setSelectedLocation] = useState<
+    [number, number] | null
+  >(null);
+
+  const [selectedCategories, setSelectedCategories] = useState<POICategory[]>([
+    "park",
+    "cafe",
+    "restaurant",
+    "pharmacy",
+    "school",
+    "grocery",
+  ]);
 
   const handleSearch = async () => {
     const query = searchQuery.trim();
@@ -79,19 +92,6 @@ export const WalkabilityMapClient = () => {
     }
   };
 
-  const [selectedLocation, setSelectedLocation] = useState<
-    [number, number] | null
-  >(null);
-
-  const [selectedCategories, setSelectedCategories] = useState<POICategory[]>([
-    "park",
-    "cafe",
-    "restaurant",
-    "pharmacy",
-    "school",
-    "grocery",
-  ]);
-
   const toggleCategory = (category: POICategory) => {
     setSelectedCategories((current) =>
       current.includes(category)
@@ -102,32 +102,62 @@ export const WalkabilityMapClient = () => {
 
   return (
     <div className="grid w-full gap-6 lg:grid-cols-[280px_minmax(0,1fr)]">
-      {/* SIDEBAR */}
+      {/* =====================================================
+          SIDEBAR
+      ====================================================== */}
+
       <aside
         className="
-        sticky
-        top-6
-        h-fit
-        max-h-[calc(100vh-3rem)]
-        overflow-y-auto
-        rounded-2xl
-        bg-white
-        p-5
-        shadow-sm
-      "
+          sticky
+          top-6
+          h-fit
+          max-h-[calc(100vh-3rem)]
+          overflow-y-auto
+          rounded-2xl
+          bg-white
+          p-5
+          shadow-sm
+        "
       >
-        {/* SEARCH */}
+        {/* =================================================
+            BACK
+        ================================================== */}
+
+        <button
+          type="button"
+          onClick={() => window.history.back()}
+          className="
+            mb-5
+            flex
+            items-center
+            gap-2
+            text-xs
+            font-medium
+            text-neutral-500
+            transition-colors
+            hover:text-neutral-900
+          "
+        >
+          <ArrowLeft size={15} strokeWidth={1.8} />
+
+          <span>Back</span>
+        </button>
+
+        {/* =================================================
+            SEARCH
+        ================================================== */}
+
         <div className="relative">
           <Search
             size={17}
             strokeWidth={1.8}
             className="
-            absolute
-            left-3
-            top-1/2
-            -translate-y-1/2
-            text-neutral-400
-          "
+              absolute
+              left-3
+              top-1/2
+              -translate-y-1/2
+              text-neutral-400
+            "
           />
 
           <input
@@ -141,26 +171,37 @@ export const WalkabilityMapClient = () => {
             }}
             placeholder="Search street or place"
             className="
-            h-11
-            w-full
-            rounded-xl
-            border
-            border-neutral-200
-            bg-white
-            pl-10
-            pr-4
-            text-sm
-            outline-none
-            transition
-            placeholder:text-neutral-400
-            focus:border-neutral-400
-          "
+              h-11
+              w-full
+              rounded-xl
+              border
+              border-neutral-200
+              bg-white
+              pl-10
+              pr-4
+              text-sm
+              outline-none
+              transition
+              placeholder:text-neutral-400
+              focus:border-neutral-400
+            "
           />
         </div>
 
-        {/* WALKING TIME */}
+        {/* =================================================
+            WALKING TIME
+        ================================================== */}
+
         <div className="mt-6">
-          <p className="text-xs font-medium uppercase tracking-wider text-neutral-400">
+          <p
+            className="
+              text-xs
+              font-medium
+              uppercase
+              tracking-wider
+              text-neutral-400
+            "
+          >
             Walking time
           </p>
 
@@ -172,17 +213,17 @@ export const WalkabilityMapClient = () => {
                 key={time}
                 onClick={() => setWalkingTime(time as WalkingTime)}
                 className={`
-                rounded-xl
-                px-3
-                py-3
-                text-sm
-                transition
-                ${
-                  walkingTime === time
-                    ? "bg-neutral-900 text-white"
-                    : "bg-neutral-100 text-neutral-700 hover:bg-neutral-200"
-                }
-              `}
+                  rounded-xl
+                  px-3
+                  py-3
+                  text-sm
+                  transition
+                  ${
+                    walkingTime === time
+                      ? "bg-neutral-900 text-white"
+                      : "bg-neutral-100 text-neutral-700 hover:bg-neutral-200"
+                  }
+                `}
               >
                 {time} min
               </button>
@@ -192,9 +233,20 @@ export const WalkabilityMapClient = () => {
 
         <div className="my-6 h-px bg-neutral-100" />
 
-        {/* EXPLORE */}
+        {/* =================================================
+            EXPLORE
+        ================================================== */}
+
         <div>
-          <p className="text-xs font-medium uppercase tracking-wider text-neutral-400">
+          <p
+            className="
+              text-xs
+              font-medium
+              uppercase
+              tracking-wider
+              text-neutral-400
+            "
+          >
             Explore
           </p>
 
@@ -209,35 +261,37 @@ export const WalkabilityMapClient = () => {
                   type="button"
                   onClick={() => toggleCategory(category)}
                   className={`
-                  group
-                  flex
-                  w-full
-                  items-center
-                  gap-3
-                  rounded-xl
-                  px-3
-                  py-2.5
-                  text-left
-                  transition
-                  ${checked ? "bg-neutral-100" : "hover:bg-neutral-50"}
-                `}
+                    group
+                    flex
+                    w-full
+                    items-center
+                    gap-3
+                    rounded-xl
+                    px-3
+                    py-2.5
+                    text-left
+                    transition
+                    ${checked ? "bg-neutral-100" : "hover:bg-neutral-50"}
+                  `}
                 >
+                  {/* ICON */}
+
                   <span
                     className={`
-                    flex
-                    h-9
-                    w-9
-                    shrink-0
-                    items-center
-                    justify-center
-                    rounded-lg
-                    transition
-                    ${
-                      checked
-                        ? "bg-neutral-900 text-white"
-                        : "bg-neutral-100 text-neutral-500 group-hover:bg-neutral-200"
-                    }
-                  `}
+                      flex
+                      h-9
+                      w-9
+                      shrink-0
+                      items-center
+                      justify-center
+                      rounded-lg
+                      transition
+                      ${
+                        checked
+                          ? "bg-neutral-900 text-white"
+                          : "bg-neutral-100 text-neutral-500 group-hover:bg-neutral-200"
+                      }
+                    `}
                   >
                     <svg
                       width="18"
@@ -254,36 +308,40 @@ export const WalkabilityMapClient = () => {
                     />
                   </span>
 
+                  {/* LABEL */}
+
                   <span
                     className={`
-                    text-sm
-                    ${
-                      checked
-                        ? "font-medium text-neutral-900"
-                        : "text-neutral-600"
-                    }
-                  `}
+                      text-sm
+                      ${
+                        checked
+                          ? "font-medium text-neutral-900"
+                          : "text-neutral-600"
+                      }
+                    `}
                   >
                     {option.label}
                   </span>
 
+                  {/* CHECK */}
+
                   <span className="ml-auto">
                     <span
                       className={`
-                      flex
-                      h-4
-                      w-4
-                      items-center
-                      justify-center
-                      rounded-full
-                      border
-                      transition
-                      ${
-                        checked
-                          ? "border-neutral-900 bg-neutral-900"
-                          : "border-neutral-300"
-                      }
-                    `}
+                        flex
+                        h-4
+                        w-4
+                        items-center
+                        justify-center
+                        rounded-full
+                        border
+                        transition
+                        ${
+                          checked
+                            ? "border-neutral-900 bg-neutral-900"
+                            : "border-neutral-300"
+                        }
+                      `}
                     >
                       {checked && (
                         <svg
@@ -309,9 +367,20 @@ export const WalkabilityMapClient = () => {
 
         <div className="my-6 h-px bg-neutral-100" />
 
-        {/* LOCATION */}
+        {/* =================================================
+            LOCATION
+        ================================================== */}
+
         <div>
-          <p className="text-xs font-medium uppercase tracking-wider text-neutral-400">
+          <p
+            className="
+              text-xs
+              font-medium
+              uppercase
+              tracking-wider
+              text-neutral-400
+            "
+          >
             Location
           </p>
 
@@ -325,14 +394,17 @@ export const WalkabilityMapClient = () => {
         </div>
       </aside>
 
-      {/* MAP */}
+      {/* =====================================================
+          MAP
+      ====================================================== */}
+
       <div
         className="
-        min-w-0
-        w-full
-        overflow-hidden
-        rounded-2xl
-      "
+          min-w-0
+          w-full
+          overflow-hidden
+          rounded-2xl
+        "
       >
         <LeafletMap
           walkingTime={walkingTime}
