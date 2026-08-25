@@ -254,14 +254,12 @@ export const ThesisSection = () => {
 
       {/* =======================================================
           MOBILE
-          IMPORTANT:
-          This sits BELOW the Projects section with large spacing.
       ======================================================== */}
 
       <div
         className="
           absolute
-          left-[10%]
+          left-0
           top-[132%]
           block
           mobile:hidden
@@ -273,7 +271,7 @@ export const ThesisSection = () => {
             MOBILE THESIS HEADER
         ===================================================== */}
 
-        <div className="pt-20">
+        <div className="pt-8">
           <p
             className="
               mb-2
@@ -289,7 +287,7 @@ export const ThesisSection = () => {
           <h2
             className="
               max-w-[340px]
-              text-5xl
+              text-4xl
               font-light
               leading-[0.95]
               tracking-[-0.05em]
@@ -317,57 +315,52 @@ export const ThesisSection = () => {
 
         {/* ====================================================
             MOBILE THESIS FIELD
+            FIXED SVG SIZE / STABLE RESPONSIVE POSITION
         ===================================================== */}
 
-        <div
+        <svg
+          viewBox="0 0 390 420"
+          preserveAspectRatio="none"
           className="
-            pointer-events-auto
-            relative
-            mx-auto
-            mt-14
-            flex
-            w-[230px]
-            h-[230px]
-            items-center
-            justify-center
-          "
-          onMouseEnter={() => setHovered(true)}
-          onMouseLeave={() => setHovered(false)}
+    mt-8
+    block
+    h-[420px]
+    w-full
+    overflow-visible
+  "
         >
-          <svg
-            viewBox="0 0 240 240"
-            className="
-              absolute
-              inset-0
-              h-full
-              w-full
-              overflow-visible
-            "
+          <defs>
+            <linearGradient
+              id="mobile-thesis-gradient"
+              x1="0"
+              y1="0"
+              x2="1"
+              y2="1"
+            >
+              <stop offset="0%" stopColor="#7d9be8" stopOpacity="0.30" />
+              <stop offset="50%" stopColor="#151515" stopOpacity="0.78" />
+              <stop offset="100%" stopColor="#7fc6a4" stopOpacity="0.35" />
+            </linearGradient>
+          </defs>
+
+          {/* ==================================================
+      FIXED MOBILE SQUARE
+      موقعیت با مختصات SVG
+  ================================================== */}
+
+          <g
+            pointerEvents="all"
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={() => setHovered(false)}
           >
-            <defs>
-              <linearGradient
-                id="mobile-thesis-gradient"
-                x1="0"
-                y1="0"
-                x2="1"
-                y2="1"
-              >
-                <stop offset="0%" stopColor="#7d9be8" stopOpacity="0.30" />
-
-                <stop offset="50%" stopColor="#151515" stopOpacity="0.78" />
-
-                <stop offset="100%" stopColor="#7fc6a4" stopOpacity="0.35" />
-              </linearGradient>
-            </defs>
-
             {/* OUTER */}
 
             <rect
-              x="5"
-              y="5"
-              width="230"
-              height="230"
-              rx="55"
+              x="37"
+              y="50"
+              width="250"
+              height="280"
+              rx="64"
               fill="url(#mobile-thesis-gradient)"
               fillOpacity={hovered ? 1 : 0.85}
               stroke="#e46a63"
@@ -379,31 +372,18 @@ export const ThesisSection = () => {
               }}
             />
 
-            {/* INNER BORDER */}
-
-            <rect
-              x="14"
-              y="14"
-              width="212"
-              height="212"
-              rx="50"
-              fill="none"
-              stroke="rgba(255,255,255,0.08)"
-              strokeWidth="1"
-            />
 
             {/* MARKER */}
 
-            <circle cx="210" cy="30" r="4" fill="#e46a63" opacity="0.7" />
+            <circle cx="263" cy="109" r="4" fill="#e46a63" opacity="0.7" />
 
             {/* LABEL */}
 
             <text
-              x="29"
-              y="210"
+              x="70"
+              y="300"
               fill="#e46a63"
               fontSize="9"
-              letterSpacing="1.8"
               style={{
                 opacity: hovered ? 1 : 0.75,
                 transition: "opacity 300ms ease",
@@ -411,51 +391,53 @@ export const ThesisSection = () => {
             >
               VIEW THESIS →
             </text>
-          </svg>
 
-          {/* CENTER CONTENT */}
+            {/* CENTER CONTENT */}
 
-          <div className="relative z-10 text-center">
-            <span
-              className="
-                block
-                text-[7px]
-                uppercase
-                tracking-[0.28em]
-                text-white/30
-              "
+            <text
+              x="160"
+              y="210"
+              textAnchor="middle"
+              fill="rgba(255,255,255,0.30)"
+              fontSize="7"
+              letterSpacing="2"
             >
-              Research
-            </span>
+              RESEARCH
+            </text>
 
-            <span
-              className="
-                mt-2
-                block
-                text-[10px]
-                leading-[1.35]
-                tracking-[0.04em]
-                text-white/70
-              "
+            <text
+              x="160"
+              y="235"
+              textAnchor="middle"
+              fill="rgba(255,255,255,0.70)"
+              fontSize="10"
+              letterSpacing="0.4"
             >
               Spatial Justice
-              <br />
-              Valiasr Street
-            </span>
-          </div>
-        </div>
+            </text>
 
-        {/* SMALL FOOTNOTE */}
+            <text
+              x="160"
+              y="250"
+              textAnchor="middle"
+              fill="rgba(255,255,255,0.70)"
+              fontSize="10"
+              letterSpacing="0.4"
+            >
+              Valiasr Street
+            </text>
+          </g>
+        </svg>
+
+        {/* ====================================================
+            SMALL FOOTNOTE
+        ===================================================== */}
 
         <p
           className="
             mx-auto
-            mt-7
-            max-w-[260px]
             text-center
-            text-[7px]
-            leading-relaxed
-            tracking-[0.04em]
+            text-[12px]
             text-white/25
           "
         >
