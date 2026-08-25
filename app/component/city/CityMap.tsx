@@ -37,8 +37,9 @@ export const CityMap = () => {
               w-full
               max-w-none
               -translate-x-1/2
-              max-sm:left-[32%]
-              max-sm:w-[210%]
+
+              max-mobile:left-[32%]
+              max-mobile:w-[210%]
             "
           />
         </div>
@@ -50,10 +51,10 @@ export const CityMap = () => {
         <div className="relative z-10 w-full">
           <div className="mx-auto w-[90%] max-w-[1400px]">
             {/* =================================================
-                NAME
+                DESKTOP NAME
             ================================================== */}
 
-            <div className="pt-[2vw]">
+            <div className="hidden mobile:block pt-[2vw]">
               <p
                 className={`
                   text-[clamp(0.65rem,1.2vw,1rem)]
@@ -75,18 +76,67 @@ export const CityMap = () => {
             </div>
 
             {/* =================================================
-                DESKTOP SVG HEADER
+                MOBILE NAME + TITLES
             ================================================== */}
 
-            <div className="hidden sm:block">
+            <div className="block mobile:hidden pt-5">
+              <div
+                className={`
+                  flex
+                  items-center
+                  justify-between
+                  gap-3
+                  transition-all
+                  duration-[1200ms]
+                  ease-out
+                  ${
+                    visible
+                      ? "translate-y-0 opacity-100"
+                      : "-translate-y-4 opacity-0"
+                  }
+                `}
+              >
+                {/* NAME */}
+
+                <p
+                  className="
+                    shrink-0
+                    text-[0.62rem]
+                    uppercase
+                    tracking-[0.18em]
+                    text-white/50
+                  "
+                >
+                  Niki Abedzadeh
+                </p>
+
+                {/* TITLES */}
+
+                <div className="flex items-center gap-[0.55rem] text-[0.58rem] uppercase tracking-[0.08em]">
+                  <span className="text-[var(--design)]">Design</span>
+                  <span className="text-[var(--research)]">Research</span>
+                  <span className="text-[var(--develop)]">Develop</span>
+                </div>
+              </div>
+            </div>
+
+            {/* =================================================
+                DESKTOP SVG
+            ================================================== */}
+
+            <div className="hidden mobile:block">
               <svg
                 viewBox="0 0 1400 400"
-                className="mt-[0.5vw] h-auto w-full overflow-visible"
+                className="
+                   mt-[2vw]
+  h-[160px]
+  w-full
+  overflow-visible
+mobile:h-[350px]
+                "
                 preserveAspectRatio="xMidYMin meet"
               >
-                {/* =================================================
-                    TITLES
-                ================================================== */}
+                {/* TITLES */}
 
                 <text
                   x="0"
@@ -122,41 +172,44 @@ export const CityMap = () => {
                 </text>
 
                 {/* =================================================
-                    FIRST GROUP
-                    DESIGN → RESEARCH
+                    DESIGN
                 ================================================== */}
 
-                <a href="#design">
-                  <g className="group cursor-pointer">
+                <a href="#design" className="group">
+                  <g
+                    className="
+                      origin-center
+                      transition-transform
+                      duration-300
+                      group-hover:-translate-y-3
+                      group-hover:scale-[1.04]
+                    "
+                  >
                     <rect
-                      x="400"
+                      x="390"
                       y="80"
                       width="105"
                       height="75"
                       fill="#e46a63"
                       fillOpacity="0.04"
                       stroke="#e46a63"
-                      strokeOpacity="0.3"
+                      strokeOpacity="0.45"
                       className="
                         transition-all
                         duration-300
-                        group-hover:-translate-y-2
-                        group-hover:scale-[1.04]
+                        group-hover:fill-[#e46a63]
+                        group-hover:fill-opacity-[0.15]
+                        group-hover:stroke-opacity-100
                       "
-                      style={{
-                        transformBox: "fill-box",
-                        transformOrigin: "center",
-                      }}
                     />
 
                     <text
-                      x="412"
-                      y="143"
+                      x="402"
+                      y="125"
                       fill="#e46a63"
                       fontSize="11"
                       opacity="0"
                       className="
-                        pointer-events-none
                         transition-opacity
                         duration-300
                         group-hover:opacity-100
@@ -170,7 +223,7 @@ export const CityMap = () => {
                 {/* EMPTY */}
 
                 <rect
-                  x="520"
+                  x="510"
                   y="55"
                   width="75"
                   height="105"
@@ -180,10 +233,8 @@ export const CityMap = () => {
                   strokeOpacity="0.1"
                 />
 
-                {/* EMPTY */}
-
                 <rect
-                  x="610"
+                  x="600"
                   y="80"
                   width="100"
                   height="75"
@@ -193,41 +244,45 @@ export const CityMap = () => {
                   strokeOpacity="0.1"
                 />
 
-                {/* RESEARCH */}
+                {/* =================================================
+                    RESEARCH
+                ================================================== */}
 
-                <a href="#research">
-                  <g className="group cursor-pointer">
+                <a href="#research" className="group">
+                  <g
+                    className="
+                      origin-center
+                      transition-transform
+                      duration-300
+                      group-hover:-translate-y-3
+                      group-hover:scale-[1.04]
+                    "
+                  >
                     <rect
-                      x="730"
+                      x="720"
                       y="50"
                       width="75"
                       height="110"
                       fill="#7fc6a4"
                       fillOpacity="0.04"
                       stroke="#7fc6a4"
-                      strokeOpacity="0.3"
+                      strokeOpacity="0.45"
                       className="
                         transition-all
                         duration-300
-                        group-hover:-translate-y-2
-                        group-hover:scale-[1.04]
-                        group-hover:fill-[#7fc6a4]/[0.12]
-                        group-hover:stroke-[#7fc6a4]
+                        group-hover:fill-[#7fc6a4]
+                        group-hover:fill-opacity-[0.15]
+                        group-hover:stroke-opacity-100
                       "
-                      style={{
-                        transformBox: "fill-box",
-                        transformOrigin: "center",
-                      }}
                     />
 
                     <text
-                      x="740"
-                      y="145"
+                      x="730"
+                      y="115"
                       fill="#7fc6a4"
                       fontSize="11"
                       opacity="0"
                       className="
-                        pointer-events-none
                         transition-opacity
                         duration-300
                         group-hover:opacity-100
@@ -242,15 +297,14 @@ export const CityMap = () => {
                     STREET / GAP
                 ================================================== */}
 
-                {/* intentionally empty space */}
+                {/* intentional street */}
 
                 {/* =================================================
-                    SECOND GROUP
-                    EMPTY → EMPTY → DEVELOP
+                    DEVELOP GROUP
                 ================================================== */}
 
                 <rect
-                  x="930"
+                  x="890"
                   y="55"
                   width="75"
                   height="100"
@@ -261,7 +315,7 @@ export const CityMap = () => {
                 />
 
                 <rect
-                  x="1025"
+                  x="985"
                   y="55"
                   width="90"
                   height="100"
@@ -271,41 +325,41 @@ export const CityMap = () => {
                   strokeOpacity="0.1"
                 />
 
-                {/* DEVELOP */}
-
-                <a href="#develop">
-                  <g className="group cursor-pointer">
+                <a href="#develop" className="group">
+                  <g
+                    className="
+                      origin-center
+                      transition-transform
+                      duration-300
+                      group-hover:-translate-y-3
+                      group-hover:scale-[1.04]
+                    "
+                  >
                     <rect
-                      x="1135"
+                      x="1095"
                       y="55"
                       width="90"
                       height="110"
                       fill="#7d9be8"
                       fillOpacity="0.04"
                       stroke="#7d9be8"
-                      strokeOpacity="0.3"
+                      strokeOpacity="0.45"
                       className="
                         transition-all
                         duration-300
-                        group-hover:-translate-y-2
-                        group-hover:scale-[1.04]
-                        group-hover:fill-[#7d9be8]/[0.12]
-                        group-hover:stroke-[#7d9be8]
+                        group-hover:fill-[#7d9be8]
+                        group-hover:fill-opacity-[0.15]
+                        group-hover:stroke-opacity-100
                       "
-                      style={{
-                        transformBox: "fill-box",
-                        transformOrigin: "center",
-                      }}
                     />
 
                     <text
-                      x="1147"
-                      y="150"
+                      x="1107"
+                      y="120"
                       fill="#7d9be8"
                       fontSize="11"
                       opacity="0"
                       className="
-                        pointer-events-none
                         transition-opacity
                         duration-300
                         group-hover:opacity-100
@@ -333,7 +387,7 @@ export const CityMap = () => {
 
                 <rect
                   x="770"
-                  y="240"
+                  y="250"
                   width="80"
                   height="90"
                   fill="white"
@@ -344,39 +398,41 @@ export const CityMap = () => {
 
                 {/* CONTACT */}
 
-                <a href="#contact">
-                  <g className="group cursor-pointer">
+                <a href="#contact" className="group">
+                  <g
+                    className="
+                      origin-center
+                      transition-transform
+                      duration-300
+                      group-hover:-translate-y-3
+                      group-hover:scale-[1.04]
+                    "
+                  >
                     <rect
                       x="865"
                       y="250"
-                      width="90"
-                      height="90"
+                      width="120"
+                      height="120"
                       fill="white"
-                      fillOpacity="0.025"
+                      fillOpacity="0.02"
                       stroke="white"
-                      strokeOpacity="0.3"
+                      strokeOpacity="0.45"
                       className="
                         transition-all
                         duration-300
-                        group-hover:-translate-y-2
-                        group-hover:scale-[1.04]
-                        group-hover:fill-white/[0.07]
-                        group-hover:stroke-white/60
+                        group-hover:fill-white
+                        group-hover:fill-opacity-[0.08]
+                        group-hover:stroke-opacity-80
                       "
-                      style={{
-                        transformBox: "fill-box",
-                        transformOrigin: "center",
-                      }}
                     />
 
                     <text
-                      x="877"
-                      y="330"
+                      x="875"
+                      y="265"
                       fill="white"
-                      fontSize="10"
+                      fontSize="13"
                       opacity="0"
                       className="
-                        pointer-events-none
                         transition-opacity
                         duration-300
                         group-hover:opacity-70
@@ -389,39 +445,41 @@ export const CityMap = () => {
 
                 {/* ABOUT */}
 
-                <a href="#about">
-                  <g className="group cursor-pointer">
+                <a href="#about" className="group">
+                  <g
+                    className="
+                      origin-center
+                      transition-transform
+                      duration-300
+                      group-hover:-translate-y-3
+                      group-hover:scale-[1.04]
+                    "
+                  >
                     <rect
-                      x="970"
+                      x="1000"
                       y="250"
-                      width="90"
-                      height="90"
+                      width="120"
+                      height="120"
                       fill="white"
-                      fillOpacity="0.025"
+                      fillOpacity="0.02"
                       stroke="white"
-                      strokeOpacity="0.3"
+                      strokeOpacity="0.45"
                       className="
                         transition-all
                         duration-300
-                        group-hover:-translate-y-2
-                        group-hover:scale-[1.04]
-                        group-hover:fill-white/[0.07]
-                        group-hover:stroke-white/60
+                        group-hover:fill-white
+                        group-hover:fill-opacity-[0.08]
+                        group-hover:stroke-opacity-80
                       "
-                      style={{
-                        transformBox: "fill-box",
-                        transformOrigin: "center",
-                      }}
                     />
 
                     <text
-                      x="982"
-                      y="330"
+                      x="1020"
+                      y="300"
                       fill="white"
-                      fontSize="10"
+                      fontSize="13"
                       opacity="0"
                       className="
-                        pointer-events-none
                         transition-opacity
                         duration-300
                         group-hover:opacity-70
@@ -435,347 +493,119 @@ export const CityMap = () => {
             </div>
 
             {/* =================================================
-                MOBILE SVG HEADER
+                MOBILE
+                NO HOVER
             ================================================== */}
 
-            <div className="block sm:hidden">
+            <div className="block mobile:hidden">
               <svg
-                viewBox="0 0 390 330"
-                className="mt-4 h-auto w-full overflow-visible"
+                viewBox="0 0 390 160"
+                className="mt-5 h-auto w-full overflow-visible"
                 preserveAspectRatio="xMidYMin meet"
               >
                 {/* =================================================
-                    TITLES
+                    DESIGN BLOCK
                 ================================================== */}
 
-                <text
-                  x="15"
-                  y="100"
-                  fill="var(--design)"
-                  fontSize="48"
-                  fontWeight="600"
-                  letterSpacing="-3"
-                >
-                  Design
-                </text>
-
-                <text
-                  x="15"
-                  y="150"
-                  fill="var(--research)"
-                  fontSize="48"
-                  fontWeight="600"
-                  letterSpacing="-3"
-                >
-                  Research
-                </text>
-
-                <text
-                  x="15"
-                  y="200"
-                  fill="var(--develop)"
-                  fontSize="48"
-                  fontWeight="600"
-                  letterSpacing="-3"
-                >
-                  Develop
-                </text>
-
-                {/* DESIGN */}
-
                 <a href="#design">
-                  <g className="group cursor-pointer">
-                    <rect
-                      x="135"
-                      y="55"
-                      width="70"
-                      height="55"
-                      fill="#e46a63"
-                      fillOpacity="0.04"
-                      stroke="#e46a63"
-                      strokeOpacity="0.3"
-                      className="
-                        transition-all
-                        duration-300
-                        group-hover:-translate-y-2
-                        group-hover:scale-[1.04]
-                        group-hover:fill-[#e46a63]/[0.12]
-                        group-hover:stroke-[#e46a63]
-                      "
-                      style={{
-                        transformBox: "fill-box",
-                        transformOrigin: "center",
-                      }}
-                    />
+                  <rect
+                    x="15"
+                    y="35"
+                    width="70"
+                    height="70"
+                    fill="#e46a63"
+                    fillOpacity="0.10"
+                    stroke="#e46a63"
+                    strokeOpacity="0.65"
+                  />
 
-                    <text
-                      x="143"
-                      y="102"
-                      fill="#e46a63"
-                      fontSize="8"
-                      opacity="0"
-                      className="
-                        pointer-events-none
-                        transition-opacity
-                        duration-300
-                        group-hover:opacity-100
-                      "
-                    >
-                      Design →
-                    </text>
-                  </g>
+                  <text x="28" y="77" fill="#e46a63" fontSize="11">
+                    Design →
+                  </text>
                 </a>
 
-                {/* EMPTY */}
-
-                <rect
-                  x="215"
-                  y="45"
-                  width="50"
-                  height="70"
-                  fill="white"
-                  fillOpacity="0.02"
-                  stroke="white"
-                  strokeOpacity="0.1"
-                />
-
-                <rect
-                  x="275"
-                  y="55"
-                  width="75"
-                  height="55"
-                  fill="white"
-                  fillOpacity="0.02"
-                  stroke="white"
-                  strokeOpacity="0.1"
-                />
-
-                {/* RESEARCH */}
+                {/* =================================================
+                    RESEARCH
+                ================================================== */}
 
                 <a href="#research">
-                  <g className="group cursor-pointer">
-                    <rect
-                      x="365"
-                      y="45"
-                      width="55"
-                      height="80"
-                      fill="#7fc6a4"
-                      fillOpacity="0.04"
-                      stroke="#7fc6a4"
-                      strokeOpacity="0.3"
-                      className="
-                        transition-all
-                        duration-300
-                        group-hover:-translate-y-2
-                        group-hover:scale-[1.04]
-                        group-hover:fill-[#7fc6a4]/[0.12]
-                        group-hover:stroke-[#7fc6a4]
-                      "
-                      style={{
-                        transformBox: "fill-box",
-                        transformOrigin: "center",
-                      }}
-                    />
+                  <rect
+                    x="100"
+                    y="35"
+                    width="70"
+                    height="75"
+                    fill="#7fc6a4"
+                    fillOpacity="0.10"
+                    stroke="#7fc6a4"
+                    strokeOpacity="0.65"
+                  />
 
-                    <text
-                      x="370"
-                      y="115"
-                      fill="#7fc6a4"
-                      fontSize="8"
-                      opacity="0"
-                      className="
-                        pointer-events-none
-                        transition-opacity
-                        duration-300
-                        group-hover:opacity-100
-                      "
-                    >
-                      Research →
-                    </text>
-                  </g>
+                  <text x="102" y="77" fill="#7fc6a4" fontSize="11">
+                    Research →
+                  </text>
                 </a>
 
-                {/* SECOND GROUP */}
-
-                <rect
-                  x="455"
-                  y="45"
-                  width="55"
-                  height="70"
-                  fill="white"
-                  fillOpacity="0.02"
-                  stroke="white"
-                  strokeOpacity="0.1"
-                />
-
-                <rect
-                  x="525"
-                  y="45"
-                  width="55"
-                  height="70"
-                  fill="white"
-                  fillOpacity="0.02"
-                  stroke="white"
-                  strokeOpacity="0.1"
-                />
-
-                {/* DEVELOP */}
+                {/* =================================================
+                    DEVELOP
+                ================================================== */}
 
                 <a href="#develop">
-                  <g className="group cursor-pointer">
-                    <rect
-                      x="595"
-                      y="40"
-                      width="65"
-                      height="80"
-                      fill="#7d9be8"
-                      fillOpacity="0.04"
-                      stroke="#7d9be8"
-                      strokeOpacity="0.3"
-                      className="
-                        transition-all
-                        duration-300
-                        group-hover:-translate-y-2
-                        group-hover:scale-[1.04]
-                        group-hover:fill-[#7d9be8]/[0.12]
-                        group-hover:stroke-[#7d9be8]
-                      "
-                      style={{
-                        transformBox: "fill-box",
-                        transformOrigin: "center",
-                      }}
-                    />
+                  <rect
+                    x="200"
+                    y="35"
+                    width="60"
+                    height="75"
+                    fill="#7d9be8"
+                    fillOpacity="0.10"
+                    stroke="#7d9be8"
+                    strokeOpacity="0.65"
+                  />
 
-                    <text
-                      x="602"
-                      y="110"
-                      fill="#7d9be8"
-                      fontSize="8"
-                      opacity="0"
-                      className="
-                        pointer-events-none
-                        transition-opacity
-                        duration-300
-                        group-hover:opacity-100
-                      "
-                    >
-                      Develop →
-                    </text>
-                  </g>
+                  <text x="200" y="77" fill="#7d9be8" fontSize="11">
+                    Develop →
+                  </text>
                 </a>
 
-                {/* LOWER BLOCKS */}
-
-                <rect
-                  x="130"
-                  y="250"
-                  width="70"
-                  height="55"
-                  fill="white"
-                  fillOpacity="0.02"
-                  stroke="white"
-                  strokeOpacity="0.1"
-                />
-
-                <rect
-                  x="210"
-                  y="240"
-                  width="60"
-                  height="70"
-                  fill="white"
-                  fillOpacity="0.02"
-                  stroke="white"
-                  strokeOpacity="0.1"
-                />
+                {/* =================================================
+                    LOWER
+                ================================================== */}
 
                 {/* CONTACT */}
 
                 <a href="#contact">
-                  <g className="group cursor-pointer">
-                    <rect
-                      x="280"
-                      y="250"
-                      width="65"
-                      height="65"
-                      fill="white"
-                      fillOpacity="0.025"
-                      stroke="white"
-                      strokeOpacity="0.3"
-                      className="
-                        transition-all
-                        duration-300
-                        group-hover:-translate-y-2
-                        group-hover:scale-[1.04]
-                        group-hover:fill-white/[0.07]
-                        group-hover:stroke-white/60
-                      "
-                      style={{
-                        transformBox: "fill-box",
-                        transformOrigin: "center",
-                      }}
-                    />
+                  <rect
+                    x="270"
+                    y="35"
+                    width="60"
+                    height="70"
+                    fill="white"
+                    fillOpacity="0.06"
+                    stroke="white"
+                    strokeOpacity="0.5"
+                  />
 
-                    <text
-                      x="286"
-                      y="302"
-                      fill="white"
-                      fontSize="8"
-                      opacity="0"
-                      className="
-                        pointer-events-none
-                        transition-opacity
-                        duration-300
-                        group-hover:opacity-100
-                      "
-                    >
-                      Contact →
-                    </text>
-                  </g>
+                  <text x="273" y="77" fill="white" fontSize="10">
+                    Contact →
+                  </text>
                 </a>
 
                 {/* ABOUT */}
 
                 <a href="#about">
-                  <g className="group cursor-pointer">
-                    <rect
-                      x="355"
-                      y="250"
-                      width="65"
-                      height="65"
-                      fill="white"
-                      fillOpacity="0.025"
-                      stroke="white"
-                      strokeOpacity="0.3"
-                      className="
-                        transition-all
-                        duration-300
-                        group-hover:-translate-y-2
-                        group-hover:scale-[1.04]
-                        group-hover:fill-white/[0.07]
-                        group-hover:stroke-white/60
-                      "
-                      style={{
-                        transformBox: "fill-box",
-                        transformOrigin: "center",
-                      }}
-                    />
+                  <rect
+                    x="337"
+                   y="35"
+                    width="60"
+                    height="80"
+                    fill="white"
+                    fillOpacity="0.06"
+                    stroke="white"
+                    strokeOpacity="0.5"
+                  />
 
-                    <text
-                      x="361"
-                      y="302"
-                      fill="white"
-                      fontSize="8"
-                      opacity="0"
-                      className="
-                        pointer-events-none
-                        transition-opacity
-                        duration-300
-                        group-hover:opacity-100
-                      "
-                    >
-                      About →
-                    </text>
-                  </g>
+                  <text x="355" y="77" fill="white" fontSize="8">
+                    About →
+                  </text>
                 </a>
               </svg>
             </div>
@@ -784,11 +614,11 @@ export const CityMap = () => {
                 DESCRIPTION
             ================================================== */}
 
-            <div className="pb-[clamp(4rem,6vw,6rem)]">
+            <div className="pb-[clamp(2rem,4vw,4rem)]">
               <h2
                 className={`
                   ml-auto
-                  mt-[clamp(0.5rem,1.5vw,1.5rem)]
+                  mt-[-1rem] mobile:mt-[clamp(0.8rem,2vw,2rem)]
                   max-w-[750px]
                   text-[clamp(1.5rem,3.5vw,3.5rem)]
                   font-light
