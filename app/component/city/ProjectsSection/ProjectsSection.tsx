@@ -40,7 +40,8 @@ export const ProjectsSection = () => {
       title: ["RANDOM", "URBAN BLOCK"],
       description: ["Urban design", "experiment"],
 
-      image: "/projects/randomBlock.jpg",
+      // ✅ فایل واقعی
+      image: "/projects/randomblock.png",
 
       centerX: 753,
 
@@ -124,9 +125,7 @@ export const ProjectsSection = () => {
      DESKTOP HOVER SCALE
   ============================================================ */
 
-  const getProjectTransform = (
-    project: (typeof projects)[number],
-  ) => {
+  const getProjectTransform = (project: (typeof projects)[number]) => {
     if (activeProject !== project.id) {
       return "scale(1)";
     }
@@ -274,15 +273,12 @@ export const ProjectsSection = () => {
 
           return (
             <g key={project.id}>
-              {/* ==================================================
-                  VISUAL PROJECT
-              ================================================== */}
+              {/* VISUAL PROJECT */}
 
               <g
                 transform={getProjectTransform(project)}
                 style={{
-                  opacity:
-                    hasActiveProject && !isActive ? 0.25 : 1,
+                  opacity: hasActiveProject && !isActive ? 0.25 : 1,
 
                   transition:
                     "transform 420ms cubic-bezier(0.22, 1, 0.36, 1), opacity 350ms ease",
@@ -293,10 +289,7 @@ export const ProjectsSection = () => {
               >
                 {/* HATCH */}
 
-                <path
-                  d={project.cellPath}
-                  fill={`url(#${project.hatch})`}
-                />
+                <path d={project.cellPath} fill={`url(#${project.hatch})`} />
 
                 {/* ACTIVE COLOR */}
 
@@ -312,9 +305,7 @@ export const ProjectsSection = () => {
 
                 {/* CONTENT */}
 
-                <g
-                  clipPath={`url(#project-cell-clip-${project.id})`}
-                >
+                <g clipPath={`url(#project-cell-clip-${project.id})`}>
                   {/* TITLE */}
 
                   <text
@@ -325,17 +316,11 @@ export const ProjectsSection = () => {
                     fontWeight="400"
                     letterSpacing="0.5"
                   >
-                    <tspan
-                      x={project.contentX + 10}
-                      dy="50"
-                    >
+                    <tspan x={project.contentX + 10} dy="50">
                       {project.title[0]}
                     </tspan>
 
-                    <tspan
-                      x={project.contentX + 10}
-                      dy="15"
-                    >
+                    <tspan x={project.contentX + 10} dy="15">
                       {project.title[1]}
                     </tspan>
                   </text>
@@ -396,17 +381,11 @@ export const ProjectsSection = () => {
                     fontSize="13"
                     letterSpacing="0.35"
                   >
-                    <tspan
-                      x={project.contentX}
-                      dy="0"
-                    >
+                    <tspan x={project.contentX} dy="0">
                       {project.description[0]}
                     </tspan>
 
-                    <tspan
-                      x={project.contentX}
-                      dy="12"
-                    >
+                    <tspan x={project.contentX} dy="12">
                       {project.description[1]}
                     </tspan>
                   </text>
@@ -429,22 +408,27 @@ export const ProjectsSection = () => {
                 />
               </g>
 
-              {/* ==================================================
-                  CLICK / HOVER AREA
-              ================================================== */}
+              {/* CLICK / HOVER AREA */}
 
-              {project.id === 3 ? (
+              {project.id === 1 ? (
+                <a
+                  href="/randomblock"
+                  onMouseEnter={() => setActiveProject(project.id)}
+                  onMouseLeave={() => setActiveProject(null)}
+                  style={{ cursor: "pointer" }}
+                >
+                  <path
+                    d={project.cellPath}
+                    fill="transparent"
+                    pointerEvents="all"
+                  />
+                </a>
+              ) : project.id === 3 ? (
                 <a
                   href="/walkabilitymap"
-                  onMouseEnter={() =>
-                    setActiveProject(project.id)
-                  }
-                  onMouseLeave={() =>
-                    setActiveProject(null)
-                  }
-                  style={{
-                    cursor: "pointer",
-                  }}
+                  onMouseEnter={() => setActiveProject(project.id)}
+                  onMouseLeave={() => setActiveProject(null)}
+                  style={{ cursor: "pointer" }}
                 >
                   <path
                     d={project.cellPath}
@@ -457,12 +441,8 @@ export const ProjectsSection = () => {
                   d={project.cellPath}
                   fill="transparent"
                   pointerEvents="all"
-                  onMouseEnter={() =>
-                    setActiveProject(project.id)
-                  }
-                  onMouseLeave={() =>
-                    setActiveProject(null)
-                  }
+                  onMouseEnter={() => setActiveProject(project.id)}
+                  onMouseLeave={() => setActiveProject(null)}
                 />
               )}
             </g>
@@ -506,7 +486,6 @@ export const ProjectsSection = () => {
 
       {/* ==========================================================
           MOBILE
-          3 RECTANGULAR CARDS
       =========================================================== */}
 
       <div
@@ -557,19 +536,22 @@ export const ProjectsSection = () => {
               text-white/35
             "
           >
-            Exploring how data, code and urban systems can
-            generate new ways of seeing and understanding
-            cities.
+            Exploring how data, code and urban systems can generate new ways of
+            seeing and understanding cities.
           </p>
         </div>
 
         {/* MOBILE PROJECT CARDS */}
 
         <div className="mt-8 flex flex-col gap-3">
-          {/* PROJECT 01 */}
+          {/* ======================================================
+              PROJECT 01
+          ======================================================= */}
 
-          <div
+          <Link
+            href="/randomblock"
             className="
+              group
               flex
               h-[92px]
               w-full
@@ -578,8 +560,13 @@ export const ProjectsSection = () => {
               border
               border-white/10
               border-l-2
-              border-l-[#e46a63]
+              border-l-[#b8b5ae]
               bg-[#151515]/90
+              transition-all
+              duration-300
+              hover:-translate-y-1
+              hover:border-white/20
+              hover:bg-[#1b1b1b]
             "
           >
             <div className="flex w-[42%] flex-col px-3">
@@ -587,7 +574,7 @@ export const ProjectsSection = () => {
                 className="
                   text-[8px]
                   tracking-[0.2em]
-                  text-[#e46a63]/70
+                  text-white/45
                 "
               >
                 01
@@ -617,19 +604,25 @@ export const ProjectsSection = () => {
               </span>
             </div>
 
+
             <img
-              src="/projects/randomBlock.jpg"
+              src="/projects/randomblock.png"
               alt="Random Urban Block"
               className="
                 h-[76px]
                 w-[58%]
                 object-cover
                 opacity-90
+                transition-opacity
+                duration-300
+                group-hover:opacity-100
               "
             />
-          </div>
+          </Link>
 
-          {/* PROJECT 02 */}
+          {/* ======================================================
+              PROJECT 02
+          ======================================================= */}
 
           <div
             className="
@@ -692,7 +685,9 @@ export const ProjectsSection = () => {
             />
           </div>
 
-          {/* PROJECT 03 — WALKABILITY MAP */}
+          {/* ======================================================
+              PROJECT 03
+          ======================================================= */}
 
           <Link
             href="/walkabilitymap"
@@ -814,9 +809,8 @@ export const ProjectsSection = () => {
             text-white/35
           "
         >
-          Exploring how data, code and urban systems can
-          generate new ways of seeing and understanding
-          cities.
+          Exploring how data, code and urban systems can generate new ways of
+          seeing and understanding cities.
         </p>
       </div>
     </section>

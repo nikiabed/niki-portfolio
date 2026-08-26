@@ -2,12 +2,22 @@
 
 import { useState } from "react";
 import { generateUrbanBlock } from "../lib/urbanGenerator";
+import { GeneratorControls } from "../component";
 
 export default function RandomUrbanBlockPage() {
   const [hover, setHover] = useState<number | null>(null);
   const [seed, setSeed] = useState(42);
 
-  const { blocks, streets } = generateUrbanBlock(seed);
+  const [density, setDensity] = useState(60);
+  const [openSpace, setOpenSpace] = useState(15);
+  const [parcelCount, setParcelCount] = useState(12);
+
+  const { parcels, streets } = generateUrbanBlock({
+    seed,
+    density,
+    openSpace,
+    parcelCount,
+  });
 
   const sitePoints = `
     150,80
@@ -18,210 +28,290 @@ export default function RandomUrbanBlockPage() {
     80,330
   `;
 
+  const generateNewCity = () => {
+    setSeed(Math.floor(Math.random() * 10000));
+  };
+
   return (
     <main
       className="
-        relative
+        flex
         h-screen
+        w-full
+        flex-col
         overflow-hidden
         bg-[#111]
         text-white
       "
     >
-      {/* TITLE */}
+      {/* =========================================================
+          MAIN CONTENT
+      ========================================================== */}
 
       <div
         className="
-          absolute
-          left-[8%]
-          top-[18%]
-          z-10
-          max-w-sm
+          flex
+          min-h-0
+          flex-1
+          items-center
+          justify-center
+          px-[6vw]
         "
       >
-        <p className="text-xs tracking-[0.3em] text-white/30">
-          01 — URBAN DESIGN
-        </p>
-
-        <h1
+        <div
           className="
-            mt-6
-            text-6xl
-            font-light
-            leading-[0.9]
-            text-white/85
+            flex
+            w-full
+            max-w-[1500px]
+            items-center
+            justify-between
+            gap-[5vw]
           "
         >
-          Random
-          <br />
-          Urban Block
-        </h1>
+          {/* =====================================================
+              LEFT — PROJECT INTRO
+          ====================================================== */}
 
-        <p
-          className="
-            mt-6
-            text-sm
-            leading-relaxed
-            text-white/40
-          "
-        >
-          An experiment exploring how random spatial configurations can generate
-          new urban relationships.
-        </p>
-      </div>
+          <section className="w-[280px] shrink-0">
+            <p className="text-[10px] tracking-[0.3em] text-white/30">
+              01 — URBAN DESIGN
+            </p>
 
-      {/* GENERATE */}
+            <h1
+              className="
+                mt-6
+                text-6xl
+                font-light
+                leading-[0.88]
+                tracking-[-0.045em]
+                text-white/85
+              "
+            >
+              Random
+              <br />
+              Urban Block
+            </h1>
 
-      <button
-        onClick={() => setSeed(Math.floor(Math.random() * 10000))}
-        className="
-          absolute
-          right-[8%]
-          top-[10%]
-          z-20
-          rounded-full
-          border
-          border-white/20
-          px-5
-          py-2
-          text-xs
-          tracking-[0.25em]
-          text-white/60
-          transition
-          hover:bg-white/10
-        "
-      >
-        GENERATE NEW CITY
-      </button>
+            <p
+              className="
+                mt-7
+                max-w-[280px]
+                text-sm
+                leading-[1.8]
+                text-white/40
+              "
+            >
+              An experiment exploring how random spatial configurations can
+              generate new urban relationships.
+            </p>
+          </section>
 
-      {/* SVG */}
+          {/* =====================================================
+              CENTER — URBAN BLOCK
+          ====================================================== */}
 
-      <svg
-        viewBox="0 0 900 520"
-        className="
-          absolute
-          left-1/2
-          top-1/2
-          h-[70vh]
-          w-[70vw]
-          -translate-x-1/2
-          -translate-y-1/2
-        "
-      >
-        <defs>
-          <clipPath id="siteClip">
-            <polygon
-              points="
-150,80
-720,80
-780,150
-780,420
-120,420
-80,330
-"
-            />
-          </clipPath>
-        </defs>
-     
+          <section
+            className="
+              flex
+              min-w-0
+              flex-1
+              items-center
+              justify-center
+            "
+          >
+            <svg
+              viewBox="0 0 900 520"
+              preserveAspectRatio="xMidYMid meet"
+              className="
+                h-auto
+                max-h-[100vh]
+                w-full
+                max-w-[820px]
+              "
+            >
+              <defs>
+                <clipPath id="siteClip">
+                  <polygon points={sitePoints} />
+                </clipPath>
+              </defs>
 
-        {/* SITE BASE */}
+              {/* =================================================
+                  SITE BASE
+              ================================================== */}
 
-        <polygon
-          points={sitePoints}
-          fill="#151515"
-          stroke="rgba(255,255,255,.35)"
-          strokeWidth="2"
-        />
+              <polygon points={sitePoints} fill="#151515" />
 
-        {streets.map((street) => {
-          return street.direction === "vertical" ? (
-            <rect
-              key={street.id}
-              x={street.x}
-              y={80}
-              width={street.width}
-              height={340}
-              fill="#222"
-            />
-          ) : (
-            <rect
-              key={street.id}
-              x={120}
-              y={street.y}
-              width={600}
-              height={street.width}
-              fill="#222"
-            />
-          );
-        })}
+              {/* =================================================
+                  SITE CONTENT
+              ================================================== */}
 
-        {/* PARCEL PUZZLE */}
+              <g clipPath="url(#siteClip)">
+                {/* =================================================
+                    STREETS
+                ================================================== */}
 
-        <g clipPath="url(#siteClip)">
-          {blocks.map((block) => {
-            const color =
-              block.type === "building"
-                ? "#e46a63"
-                : block.type === "green"
-                  ? "#7fc6a4"
-                  : "#7d9be8";
+                {streets.map((street) => {
+                  if (street.direction === "vertical") {
+                    return (
+                      <rect
+                        key={street.id}
+                        x={(street.x ?? 0) - street.width / 2}
+                        y="0"
+                        width={street.width}
+                        height="520"
+                        fill="#242424"
+                      />
+                    );
+                  }
 
-            return (
+                  return (
+                    <rect
+                      key={street.id}
+                      x="0"
+                      y={(street.y ?? 0) - street.width / 2}
+                      width="900"
+                      height={street.width}
+                      fill="#242424"
+                    />
+                  );
+                })}
+
+                {/* =================================================
+                    PARCEL PUZZLE
+                ================================================== */}
+
+                {parcels.map((parcel) => {
+                  const isHovered = hover === parcel.id;
+
+                  const color =
+                    parcel.type === "building"
+                      ? "#b8b5ae"
+                      : parcel.type === "green"
+                        ? "#7fc6a4"
+                        : "#8d9bb5";
+
+                  return (
+                    <g
+                      key={parcel.id}
+                      onMouseEnter={() => setHover(parcel.id)}
+                      onMouseLeave={() => setHover(null)}
+                      className="cursor-pointer"
+                    >
+                      <polygon
+                        points={parcel.points}
+                        fill={color}
+                        fillOpacity={isHovered ? 0.68 : 0.38}
+                        stroke="rgba(255,255,255,0.38)"
+                        strokeWidth="1"
+                        strokeLinejoin="round"
+                        style={{
+                          transition:
+                            "fill-opacity 180ms ease, stroke 180ms ease",
+                        }}
+                      />
+
+                      {isHovered && (
+                        <polygon
+                          points={parcel.points}
+                          fill="none"
+                          stroke="#ffffff"
+                          strokeOpacity="0.8"
+                          strokeWidth="1.5"
+                          strokeLinejoin="round"
+                          pointerEvents="none"
+                        />
+                      )}
+                    </g>
+                  );
+                })}
+              </g>
+
+              {/* =================================================
+                  SITE BORDER
+              ================================================== */}
+
               <polygon
-                key={block.id}
-                points={block.points}
-                fill={color}
-                fillOpacity={hover === block.id ? "0.65" : "0.35"}
-                stroke="rgba(255,255,255,.45)"
-                strokeWidth="1"
-                onMouseEnter={() => setHover(block.id)}
-                onMouseLeave={() => setHover(null)}
-                className="cursor-pointer"
+                points={sitePoints}
+                fill="none"
+                stroke="rgba(255,255,255,.5)"
+                strokeWidth="2"
+                strokeLinejoin="round"
+                pointerEvents="none"
               />
-            );
-          })}
-        </g>
+            </svg>
+          </section>
 
-        {/* BORDER */}
+          {/* =====================================================
+              RIGHT — GENERATOR
+          ====================================================== */}
 
-        <polygon
-          points={sitePoints}
-          fill="none"
-          stroke="rgba(255,255,255,.5)"
-          strokeWidth="2"
-        />
-      </svg>
+          <section className="w-[260px] shrink-0">
+            <GeneratorControls
+              density={density}
+              openSpace={openSpace}
+              parcelCount={parcelCount}
+              onDensityChange={setDensity}
+              onOpenSpaceChange={setOpenSpace}
+              onParcelCountChange={setParcelCount}
+              onGenerate={generateNewCity}
+            />
+          </section>
+        </div>
+      </div>
 
-      {/* INFO */}
+      {/* =========================================================
+          BOTTOM META
+      ========================================================== */}
 
-      <div
+      <footer
         className="
-          absolute
-          bottom-[10%]
-          right-[8%]
-          text-right
+          flex
+          w-full
+          shrink-0
+          items-end
+          justify-between
+          px-[8%]
+          pb-[7%]
         "
       >
-        <p
-          className="
-            text-xs
-            tracking-[0.25em]
-            text-white/30
-          "
-        >
-          RANDOM GENERATION
-        </p>
+        {/* LEFT */}
 
-        <p
-          className="
-            mt-3
-            text-sm
-            text-white/50
-          "
-        >
-          Density · Morphology · Interaction
-        </p>
-      </div>
+        <div>
+          <p className="text-[9px] tracking-[0.28em] text-white/20">
+            RANDOM GENERATION
+          </p>
+
+          <p className="mt-3 text-xs text-white/35">
+            Density · Morphology · Interaction
+          </p>
+        </div>
+
+        {/* RIGHT */}
+
+        <div className="flex gap-10">
+          <div>
+            <p className="text-[9px] tracking-[0.2em] text-white/20">DENSITY</p>
+
+            <p className="mt-2 font-mono text-xs text-white/40">{density}%</p>
+          </div>
+
+          <div>
+            <p className="text-[9px] tracking-[0.2em] text-white/20">
+              OPEN SPACE
+            </p>
+
+            <p className="mt-2 font-mono text-xs text-white/40">{openSpace}%</p>
+          </div>
+
+          <div>
+            <p className="text-[9px] tracking-[0.2em] text-white/20">PARCELS</p>
+
+            <p className="mt-2 font-mono text-xs text-white/40">
+              {parcels.length}
+            </p>
+          </div>
+        </div>
+      </footer>
     </main>
   );
 }
