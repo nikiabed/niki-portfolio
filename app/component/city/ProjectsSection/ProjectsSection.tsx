@@ -35,7 +35,7 @@ export const ProjectsSection = () => {
       id: 1 as ProjectId,
       color: "#e46a63",
       hatch: "projects-design-hatch",
-
+      href: "/randomblock",
       number: "01",
       title: ["RANDOM", "URBAN BLOCK"],
       description: ["Urban design", "experiment"],
@@ -66,7 +66,7 @@ export const ProjectsSection = () => {
       id: 2 as ProjectId,
       color: "#7d9be8",
       hatch: "projects-research-hatch",
-
+      href: "/tenminutescity",
       number: "02",
       title: ["10 MINUTES", "CITY"],
       description: ["Urban data", "research"],
@@ -94,7 +94,7 @@ export const ProjectsSection = () => {
       id: 3 as ProjectId,
       color: "#7fc6a4",
       hatch: "projects-develop-hatch",
-
+      href: "/walkabilitymap",
       number: "03",
       title: ["WALKABILITY", "MAP"],
       description: ["Code + walkability", "systems"],
@@ -410,41 +410,18 @@ export const ProjectsSection = () => {
 
               {/* CLICK / HOVER AREA */}
 
-              {project.id === 1 ? (
-                <a
-                  href="/randomblock"
-                  onMouseEnter={() => setActiveProject(project.id)}
-                  onMouseLeave={() => setActiveProject(null)}
-                  style={{ cursor: "pointer" }}
-                >
-                  <path
-                    d={project.cellPath}
-                    fill="transparent"
-                    pointerEvents="all"
-                  />
-                </a>
-              ) : project.id === 3 ? (
-                <a
-                  href="/walkabilitymap"
-                  onMouseEnter={() => setActiveProject(project.id)}
-                  onMouseLeave={() => setActiveProject(null)}
-                  style={{ cursor: "pointer" }}
-                >
-                  <path
-                    d={project.cellPath}
-                    fill="transparent"
-                    pointerEvents="all"
-                  />
-                </a>
-              ) : (
+              <Link
+                href={project.href}
+                onMouseEnter={() => setActiveProject(project.id)}
+                onMouseLeave={() => setActiveProject(null)}
+                style={{ cursor: "pointer" }}
+              >
                 <path
                   d={project.cellPath}
                   fill="transparent"
                   pointerEvents="all"
-                  onMouseEnter={() => setActiveProject(project.id)}
-                  onMouseLeave={() => setActiveProject(null)}
                 />
-              )}
+              </Link>
             </g>
           );
         })}
@@ -604,7 +581,6 @@ export const ProjectsSection = () => {
               </span>
             </div>
 
-
             <img
               src="/projects/randomblock.png"
               alt="Random Urban Block"
@@ -624,8 +600,10 @@ export const ProjectsSection = () => {
               PROJECT 02
           ======================================================= */}
 
-          <div
+          <Link
+            href="/tenminutescity"
             className="
+              group
               flex
               h-[92px]
               w-full
@@ -634,8 +612,13 @@ export const ProjectsSection = () => {
               border
               border-white/10
               border-l-2
-              border-l-[#7d9be8]
+              border-l-[#b8b5ae]
               bg-[#151515]/90
+              transition-all
+              duration-300
+              hover:-translate-y-1
+              hover:border-white/20
+              hover:bg-[#1b1b1b]
             "
           >
             <div className="flex w-[42%] flex-col px-3">
@@ -683,8 +666,7 @@ export const ProjectsSection = () => {
                 opacity-90
               "
             />
-          </div>
-
+          </Link>
           {/* ======================================================
               PROJECT 03
           ======================================================= */}
