@@ -2,12 +2,22 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import dynamic from "next/dynamic";
 
 type Layer = "landuse" | "services" | "density" | "green" | "buildings";
 
 export default function TenMinutesCityPage() {
   const [activeLayer, setActiveLayer] = useState<Layer>("landuse");
-
+  const RealMap = dynamic(() => import("./RealMap"), {
+    ssr: false,
+    loading: () => (
+      <div className="absolute inset-0 flex items-center justify-center bg-[#151515]">
+        <span className="font-mono text-[9px] tracking-[0.2em] text-white/25">
+          LOADING OSM DATA...
+        </span>
+      </div>
+    ),
+  });
   return (
     <main className="min-h-screen w-full bg-[#111] text-white">
       {/* =========================================================
@@ -56,7 +66,7 @@ export default function TenMinutesCityPage() {
                 TEMPORARY MAP
             ------------------------------------------------------ */}
 
-            <FakeMap activeLayer={activeLayer} />
+            <RealMap activeLayer={activeLayer} />
 
             {/* -----------------------------------------------------
                 MAP HEADER
