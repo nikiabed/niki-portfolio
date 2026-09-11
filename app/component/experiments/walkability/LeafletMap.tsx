@@ -158,60 +158,75 @@ export const LeafletMap = ({
     fetchIsochrone();
   }, [selectedLocation, walkingTime]);
 
-  useEffect(() => {
-    if (!isochrone) {
-      setPois([]);
-      return;
-    }
+useEffect(() => {
+  if (!isochrone || !selectedLocation) {
+    setPois([]);
+    return;
+  }
 
-    const polygon = isochrone.features?.[0]?.geometry;
+  const polygon = isochrone.features?.[0]?.geometry;
 
-    if (!polygon || polygon.type !== "Polygon") {
-      return;
-    }
+  if (!polygon || polygon.type !== "Polygon") {
+    setPois([]);
+    return;
+  }
 
-    const fetchPois = async () => {
-      try {
-        setLoading(true);
+  if (selectedCategories.length === 0) {
+    setPois([]);
+    return;
+  }
 
-        const response = await fetch("/api/pois", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            polygon,
-            latitude: selectedLocation[0],
-            longitude: selectedLocation[1],
-            minutes: walkingTime,
-            categories: selectedCategories,
-          }),
-        });
+  const [latitude, longitude] = selectedLocation;
 
-        const text = await response.text();
+  const fetchPois = async () => {
+    try {
+      setLoading(true);
 
-        console.log("POI STATUS:", response.status);
-        console.log("POI RAW RESPONSE:", text);
+      const response = await fetch("/api/pois", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          polygon,
+          latitude,
+          longitude,
+          minutes: walkingTime,
+          categories: selectedCategories,
+        }),
+      });
 
-        if (!response.ok) {
-          throw new Error(`Failed to fetch POIs (${response.status}): ${text}`);
-        }
+      const text = await response.text();
 
-        const data = JSON.parse(text);
+      console.log("POI STATUS:", response.status);
+      console.log("POI RAW RESPONSE:", text);
 
-        console.log("POI DATA:", data);
-
-        setPois(data.features ?? []);
-      } catch (error) {
-        console.error("POI error:", error);
-        setPois([]);
-      } finally {
-        setLoading(false);
+      if (!response.ok) {
+        throw new Error(
+          `Failed to fetch POIs (${response.status}): ${text}`,
+        );
       }
-    };
 
-    fetchPois();
-  }, [isochrone, selectedLocation, walkingTime, selectedCategories]);
+      const data = JSON.parse(text);
+
+      console.log("POI DATA:", data);
+
+      setPois(data.features ?? []);
+    } catch (error) {
+      console.error("POI error:", error);
+      setPois([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchPois();
+}, [
+  isochrone,
+  selectedLocation,
+  walkingTime,
+  selectedCategories,
+]);
 
   const visiblePois = pois.filter((poi) =>
     selectedCategories.includes(poi.category),
