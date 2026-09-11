@@ -1,163 +1,449 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const OVERPASS_URL = "https://overpass-api.de/api/interpreter";
+const OVERPASS_URL =
+  "https://overpass-api.de/api/interpreter";
 
-const CATEGORY_QUERIES = {
-  park: `
-    nwr["leisure"="park"](poly:"POLYGON");
-  `,
-  cafe: `
-    nwr["amenity"="cafe"](poly:"POLYGON");
-  `,
-  restaurant: `
-    nwr["amenity"="restaurant"](poly:"POLYGON");
-  `,
-  pharmacy: `
-    nwr["amenity"="pharmacy"](poly:"POLYGON");
-  `,
-  school: `
-    nwr["amenity"="school"](poly:"POLYGON");
-  `,
-  grocery: `
-    nwr["shop"="supermarket"](poly:"POLYGON");
-  `,
+const CATEGORY_FILTERS = {
+  park: `nwr["leisure"="park"]`,
+  cafe: `nwr["amenity"="cafe"]`,
+  restaurant: `nwr["amenity"="restaurant"]`,
+  pharmacy: `nwr["amenity"="pharmacy"]`,
+  school: `nwr["amenity"="school"]`,
+  grocery: `nwr["shop"="supermarket"]`,
 } as const;
 
-type Category = keyof typeof CATEGORY_QUERIES;
+type Category = keyof typeof CATEGORY_FILTERS;
 
-function polygonToOverpass(geometry: GeoJSON.Polygon["coordinates"]): string {
-  const ring = geometry[0];
+/* ============================================================
+   GET CENTER OF OSM ELEMENT
+============================================================ */
 
-  return ring
-    .map(([longitude, latitude]) => `${latitude} ${longitude}`)
-    .join(" ");
-}
-
-function getCenter(element: any): [number, number] | null {
-  if (element.lat !== undefined && element.lon !== undefined) {
-    return [element.lat, element.lon];
+function getCenter(
+  element: any,
+): [number, number] | null {
+  if (
+    typeof element.lat === "number" &&
+    typeof element.lon === "number"
+  ) {
+    return [
+      element.lat,
+      element.lon,
+    ];
   }
 
-  if (element.center) {
-    return [element.center.lat, element.center.lon];
+  if (
+    element.center &&
+    typeof element.center.lat === "number" &&
+    typeof element.center.lon === "number"
+  ) {
+    return [
+      element.center.lat,
+      element.center.lon,
+    ];
   }
 
   return null;
 }
 
-export async function POST(request: NextRequest) {
+/* ============================================================
+   POINT IN POLYGON
+
+   polygon coordinates:
+   [longitude, latitude]
+
+   point:
+   [latitude, longitude]
+============================================================ */
+
+function pointInPolygon(
+  latitude: number,
+  longitude: number,
+  coordinates: number[][],
+) {
+  let inside = false;
+
+  const x = longitude;
+  const y = latitude;
+
+  for (
+    let i = 0, j = coordinates.length - 1;
+    i < coordinates.length;
+    j = i++
+  ) {
+    const xi = coordinates[i][0];
+    const yi = coordinates[i][1];
+
+    const xj = coordinates[j][0];
+    const yj = coordinates[j][1];
+
+    const intersects =
+      yi > y !== yj > y &&
+      x <
+        ((xj - xi) * (y - yi)) /
+          (yj - yi || Number.EPSILON) +
+          xi;
+
+    if (intersects) {
+      inside = !inside;
+    }
+  }
+
+  return inside;
+}
+
+/* ============================================================
+   CATEGORY
+============================================================ */
+
+function getCategory(
+  element: any,
+): Category | null {
+  const tags = element.tags ?? {};
+
+  if (tags.leisure === "park") {
+    return "park";
+  }
+
+  if (tags.amenity === "cafe") {
+    return "cafe";
+  }
+
+  if (tags.amenity === "restaurant") {
+    return "restaurant";
+  }
+
+  if (tags.amenity === "pharmacy") {
+    return "pharmacy";
+  }
+
+  if (tags.amenity === "school") {
+    return "school";
+  }
+
+  if (tags.shop === "supermarket") {
+    return "grocery";
+  }
+
+  return null;
+}
+
+/* ============================================================
+   POST
+============================================================ */
+
+export async function POST(
+  request: NextRequest,
+) {
   try {
     const body = await request.json();
 
     const {
       polygon,
+      latitude,
+      longitude,
+      minutes,
       categories,
     }: {
       polygon: GeoJSON.Polygon;
+      latitude: number;
+      longitude: number;
+      minutes: number;
       categories: Category[];
     } = body;
 
-    if (!polygon || !Array.isArray(categories)) {
-      return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+    /* ========================================================
+       VALIDATE
+    ======================================================== */
+
+    if (
+      !polygon ||
+      polygon.type !== "Polygon" ||
+      typeof latitude !== "number" ||
+      typeof longitude !== "number" ||
+      typeof minutes !== "number" ||
+      !Array.isArray(categories)
+    ) {
+      return NextResponse.json(
+        {
+          error: "Invalid request",
+        },
+        {
+          status: 400,
+        },
+      );
     }
 
-    const polygonString = polygonToOverpass(polygon.coordinates);
+    const selectedCategories =
+      categories.filter(
+        (
+          category,
+        ): category is Category =>
+          category in CATEGORY_FILTERS,
+      );
 
-    const selectedCategories = categories.filter(
-      (category) => category in CATEGORY_QUERIES,
-    );
-
-    if (selectedCategories.length === 0) {
+    if (
+      selectedCategories.length === 0
+    ) {
       return NextResponse.json({
         features: [],
       });
     }
 
-    const queries = selectedCategories
-      .map((category) =>
-        CATEGORY_QUERIES[category].replace("POLYGON", polygonString),
-      )
-      .join("\n");
+    /* ========================================================
+       SEARCH RADIUS
+
+       Approx walking speed:
+       ~80 metres/minute
+
+       We deliberately make it slightly larger
+       and then filter by the REAL isochrone.
+    ======================================================== */
+
+    const radius = Math.ceil(
+      minutes * 90,
+    );
+
+    /* ========================================================
+       BUILD SMALL OVERPASS QUERY
+
+       IMPORTANT:
+       We use around instead of poly.
+
+       This is MUCH lighter for Overpass.
+    ======================================================== */
+
+    const queryParts =
+      selectedCategories.map(
+        (category) => {
+          const filter =
+            CATEGORY_FILTERS[category];
+
+          return `${filter}(around:${radius},${latitude},${longitude});`;
+        },
+      );
 
     const query = `
-      [out:json][timeout:25];
+      [out:json][timeout:20];
 
       (
-        ${queries}
+        ${queryParts.join("\n")}
       );
 
       out center tags;
     `;
 
-    const response = await fetch(OVERPASS_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        Accept: "application/json",
-        "User-Agent": "NikiWalkabilityExplorer/1.0",
+    console.log(
+      "POI SEARCH:",
+      {
+        latitude,
+        longitude,
+        minutes,
+        radius,
+        categories:
+          selectedCategories,
       },
-      body: new URLSearchParams({
-        data: query,
-      }),
-    });
+    );
+
+    /* ========================================================
+       FETCH
+    ======================================================== */
+
+    const response = await fetch(
+      OVERPASS_URL,
+      {
+        method: "POST",
+
+        headers: {
+          "Content-Type":
+            "application/x-www-form-urlencoded",
+
+          Accept:
+            "application/json",
+
+          "User-Agent":
+            "NikiWalkabilityExplorer/1.0",
+        },
+
+        body: new URLSearchParams({
+          data: query,
+        }),
+
+        cache: "no-store",
+      },
+    );
+
+    const responseText =
+      await response.text();
 
     if (!response.ok) {
-      const error = await response.text();
-
-      console.error("Overpass error:", error);
+      console.error(
+        "Overpass error:",
+        response.status,
+        responseText.slice(0, 1000),
+      );
 
       return NextResponse.json(
         {
-          error: "Overpass request failed",
-          details: error,
+          error:
+            "Overpass request failed",
+
+          status:
+            response.status,
+
+          details:
+            responseText.slice(
+              0,
+              1000,
+            ),
         },
-        { status: response.status },
+        {
+          status: 502,
+        },
       );
     }
 
-    const data = await response.json();
+    let data: any;
 
-    const features = data.elements
+    try {
+      data =
+        JSON.parse(responseText);
+    } catch {
+      return NextResponse.json(
+        {
+          error:
+            "Invalid Overpass response",
+        },
+        {
+          status: 502,
+        },
+      );
+    }
+
+    /* ========================================================
+       REAL ISOCHRONE POLYGON
+    ======================================================== */
+
+    const ring =
+      polygon.coordinates[0];
+
+    /* ========================================================
+       CONVERT + FILTER
+
+       First Overpass gives us everything
+       near the point.
+
+       THEN we check if it is actually inside
+       the ORS walking polygon.
+    ======================================================== */
+
+    const features = (
+      data.elements ?? []
+    )
       .map((element: any) => {
-        const center = getCenter(element);
+        const center =
+          getCenter(element);
 
-        if (!center) return null;
+        if (!center) {
+          return null;
+        }
+
+        const [
+          elementLat,
+          elementLon,
+        ] = center;
+
+        const inside =
+          pointInPolygon(
+            elementLat,
+            elementLon,
+            ring,
+          );
+
+        if (!inside) {
+          return null;
+        }
 
         const category =
-          element.tags?.leisure === "park"
-            ? "park"
-            : element.tags?.amenity === "cafe"
-              ? "cafe"
-              : element.tags?.amenity === "restaurant"
-                ? "restaurant"
-                : element.tags?.amenity === "pharmacy"
-                  ? "pharmacy"
-                  : element.tags?.amenity === "school"
-                    ? "school"
-                    : element.tags?.shop === "supermarket"
-                      ? "grocery"
-                      : null;
+          getCategory(element);
 
-        if (!category) return null;
+        if (
+          !category ||
+          !selectedCategories.includes(
+            category,
+          )
+        ) {
+          return null;
+        }
 
         return {
           id: `${element.type}-${element.id}`,
+
           category,
-          name: element.tags?.name || "Unnamed",
+
+          name:
+            element.tags?.name ||
+            POI_FALLBACK_NAMES[
+              category
+            ],
+
           position: center,
         };
       })
       .filter(Boolean);
 
+    console.log(
+      "POIs returned:",
+      features.length,
+    );
+
     return NextResponse.json({
       features,
+
+      meta: {
+        raw:
+          data.elements?.length ?? 0,
+
+        inside:
+          features.length,
+
+        radius,
+      },
     });
   } catch (error) {
-    console.error("POI API error:", error);
+    console.error(
+      "POI API error:",
+      error,
+    );
 
     return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
+      {
+        error:
+          "Internal server error",
+
+        details:
+          error instanceof Error
+            ? error.message
+            : String(error),
+      },
+      {
+        status: 500,
+      },
     );
   }
 }
+
+/* ============================================================
+   FALLBACK NAMES
+============================================================ */
+
+const POI_FALLBACK_NAMES: Record<
+  Category,
+  string
+> = {
+  park: "Park",
+  cafe: "Café",
+  restaurant: "Restaurant",
+  pharmacy: "Pharmacy",
+  school: "School",
+  grocery: "Grocery",
+};

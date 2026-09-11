@@ -181,24 +181,27 @@ export const LeafletMap = ({
           },
           body: JSON.stringify({
             polygon,
-            categories: [
-              "park",
-              "cafe",
-              "restaurant",
-              "pharmacy",
-              "school",
-              "grocery",
-            ],
+            latitude: selectedLocation[0],
+            longitude: selectedLocation[1],
+            minutes: walkingTime,
+            categories: selectedCategories,
           }),
         });
 
+        const text = await response.text();
+
+        console.log("POI STATUS:", response.status);
+        console.log("POI RAW RESPONSE:", text);
+
         if (!response.ok) {
-          throw new Error("Failed to fetch POIs");
+          throw new Error(`Failed to fetch POIs (${response.status}): ${text}`);
         }
 
-        const data = await response.json();
+        const data = JSON.parse(text);
 
-        setPois(data.features);
+        console.log("POI DATA:", data);
+
+        setPois(data.features ?? []);
       } catch (error) {
         console.error("POI error:", error);
         setPois([]);
@@ -208,7 +211,7 @@ export const LeafletMap = ({
     };
 
     fetchPois();
-  }, [isochrone]);
+  }, [isochrone, selectedLocation, walkingTime, selectedCategories]);
 
   const visiblePois = pois.filter((poi) =>
     selectedCategories.includes(poi.category),
