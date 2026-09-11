@@ -1,164 +1,78 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import snapshot from "../../../data/tenminutescity.json";
+import { parseOSM, studyArea, type OSMElement } from "../../tenminutescity/osm";
+import { areaAround, osmBounds, type CityData, type StudyArea } from "../../tenminutescity/data";
 
-const OVERPASS_URL = "https://turbo.overpass.kumi.systems/api/interpreter";
-export async function GET() {
-  try {
-    const south = 35.705;
-    const west = 51.395;
-    const north = 35.725;
-    const east = 51.415;
+const cache = new Map<string, { data: CityData; at: number }>();
+const pending = new Map<string, Promise<CityData>>();
+const cacheLifetime = 60 * 60 * 1000;
 
-    const query = `
-[out:json][timeout:25];
-
-(
-  way["building"](${south},${west},${north},${east});
-);
-
-out geom;
-`;
-
-    console.log("=================================");
-    console.log("TEN MINUTES CITY → OVERPASS");
-    console.log("=================================");
-    console.log("URL:", OVERPASS_URL);
-    console.log("BBOX:", {
-      south,
-      west,
-      north,
-      east,
-    });
-
-    const response = await fetch(OVERPASS_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        Accept: "application/json",
-      },
-      body: `data=${encodeURIComponent(query)}`,
-      cache: "no-store",
-    });
-
-    console.log("OVERPASS STATUS:", response.status);
-
-    const text = await response.text();
-
-    console.log("OVERPASS RESPONSE:", text.slice(0, 1000));
-
-    if (!response.ok) {
-      return NextResponse.json(
-        {
-          error: "Overpass API failed",
-          status: response.status,
-          response: text.slice(0, 2000),
-        },
-        { status: 502 },
-      );
+async function fetchBounds(bounds: StudyArea, signal: AbortSignal, depth = 0): Promise<OSMElement[]> {
+  const bbox = `${bounds.west},${bounds.south},${bounds.east},${bounds.north}`;
+  const response = await fetch(`https://api.openstreetmap.org/api/0.6/map.json?bbox=${bbox}`, {
+    headers: { "User-Agent": "NikiPortfolio/1.0 (neighborhood research)", Accept: "application/json" },
+    signal,
+    cache: "no-store",
+  });
+  if (!response.ok) {
+    const message = await response.text();
+    // Dense cities can exceed OSM's per-request node limit. Fetch smaller tiles
+    // and merge by OSM ID so buildings crossing tile edges are counted once.
+    if (response.status === 400 && message.includes("too many nodes") && depth < 2) {
+      const lat = (bounds.south + bounds.north) / 2;
+      const lon = (bounds.west + bounds.east) / 2;
+      const parts = [
+        { ...bounds, north: lat, east: lon }, { ...bounds, north: lat, west: lon },
+        { ...bounds, south: lat, east: lon }, { ...bounds, south: lat, west: lon },
+      ];
+      return (await Promise.all(parts.map(part => fetchBounds(part, signal, depth + 1)))).flat();
     }
+    throw new Error(`OSM returned ${response.status}`);
+  }
+  const result = await response.json() as { elements?: OSMElement[] };
+  if (!Array.isArray(result.elements)) throw new Error("Invalid OSM response");
+  return result.elements;
+}
 
-    const data = JSON.parse(text);
+async function loadArea(area: StudyArea): Promise<CityData> {
+  const signal = AbortSignal.timeout(30000);
+  const results = await Promise.all(osmBounds(area).map(bounds => fetchBounds(bounds, signal)));
+  const elements = [...new Map(results.flat().map(item => [`${item.type}-${item.id}`, item])).values()];
+  return parseOSM({ elements }, new Date().toISOString(), area);
+}
 
-    const elements = data.elements ?? [];
-
-    const buildings = elements
-      .filter((item: any) => item.tags?.building)
-      .map((item: any) => ({
-        id: item.id,
-        type: "building",
-        lat: item.center?.lat ?? item.lat,
-        lon: item.center?.lon ?? item.lon,
-        tags: item.tags ?? {},
-      }))
-      .filter((item: any) => item.lat && item.lon);
-
-    const streets = elements
-      .filter((item: any) => item.tags?.highway)
-      .map((item: any) => ({
-        id: item.id,
-        type: "street",
-        lat: item.center?.lat ?? item.lat,
-        lon: item.center?.lon ?? item.lon,
-        highway: item.tags?.highway,
-        name: item.tags?.name ?? null,
-      }))
-      .filter((item: any) => item.lat && item.lon);
-
-    const green = elements
-      .filter(
-        (item: any) =>
-          item.tags?.leisure === "park" || item.tags?.leisure === "garden",
-      )
-      .map((item: any) => ({
-        id: item.id,
-        type: "green",
-        lat: item.center?.lat ?? item.lat,
-        lon: item.center?.lon ?? item.lon,
-        name: item.tags?.name ?? null,
-      }))
-      .filter((item: any) => item.lat && item.lon);
-
-    const services = elements
-      .filter(
-        (item: any) =>
-          item.tags?.amenity || item.tags?.shop || item.tags?.public_transport,
-      )
-      .map((item: any) => ({
-        id: item.id,
-        type: "service",
-        lat: item.center?.lat ?? item.lat,
-        lon: item.center?.lon ?? item.lon,
-        category:
-          item.tags?.amenity ??
-          item.tags?.shop ??
-          item.tags?.public_transport ??
-          "other",
-        name: item.tags?.name ?? null,
-        tags: item.tags ?? {},
-      }))
-      .filter((item: any) => item.lat && item.lon);
-
-    console.log("=================================");
-    console.log("OSM DATA LOADED");
-    console.log("Buildings:", buildings.length);
-    console.log("Streets:", streets.length);
-    console.log("Green:", green.length);
-    console.log("Services:", services.length);
-    console.log("=================================");
-
-    return NextResponse.json({
-      studyArea: {
-        south,
-        west,
-        north,
-        east,
-      },
-
-      counts: {
-        buildings: buildings.length,
-        streets: streets.length,
-        green: green.length,
-        services: services.length,
-      },
-
-      buildings,
-      streets,
-      green,
-      services,
-
-      source: "OpenStreetMap / Overpass API",
-    });
-  } catch (error) {
-    console.error("=================================");
-    console.error("TEN MINUTES CITY API ERROR");
-    console.error(error);
-    console.error("=================================");
-
-    return NextResponse.json(
-      {
-        error: "Failed to load OpenStreetMap data.",
-        message: error instanceof Error ? error.message : String(error),
-      },
-      { status: 500 },
-    );
+export async function GET(request: NextRequest) {
+  const params = request.nextUrl.searchParams;
+  const hasLocation = params.has("lat") || params.has("lon");
+  let area = studyArea;
+  if (hasLocation) {
+    const lat = Number(params.get("lat"));
+    const lon = Number(params.get("lon"));
+    if (!params.get("lat")?.trim() || !params.get("lon")?.trim() || !Number.isFinite(lat) || !Number.isFinite(lon) || Math.abs(lat) > 85 || Math.abs(lon) > 180) {
+      return NextResponse.json({ error: "Choose a valid map location." }, { status: 400 });
+    }
+    area = areaAround([lat, lon]);
+  }
+  const key = JSON.stringify(area);
+  const cached = cache.get(key);
+  const force = params.get("refresh") === "1";
+  if (!force && cached && Date.now() - cached.at < cacheLifetime) return NextResponse.json(cached.data);
+  if (!force && !hasLocation) return NextResponse.json(snapshot);
+  try {
+    let work = pending.get(key);
+    if (!work) {
+      work = loadArea(area).then(data => {
+        cache.delete(key);
+        cache.set(key, { data, at: Date.now() });
+        if (cache.size > 24) cache.delete(cache.keys().next().value!);
+        return data;
+      }).finally(() => pending.delete(key));
+      pending.set(key, work);
+    }
+    return NextResponse.json(await work);
+  } catch {
+    // Never show Tehran's snapshot as if it belongs to a different selected location.
+    if (cached || !hasLocation) return NextResponse.json({ ...(cached?.data ?? snapshot), refreshUnavailable: true });
+    return NextResponse.json({ error: "Could not load this location. Try again or choose another point." }, { status: 502 });
   }
 }

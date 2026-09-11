@@ -71,7 +71,7 @@ export const ProjectsSection = () => {
       title: ["10 MINUTES", "CITY"],
       description: ["Urban data", "research"],
 
-      image: "/projects/10MinutesCity.jpg",
+      image: "/projects/tenminutescity.svg",
 
       centerX: 899.5,
 
@@ -412,6 +412,7 @@ export const ProjectsSection = () => {
 
               <Link
                 href={project.href}
+                aria-label={project.title.join(' ')}
                 onMouseEnter={() => setActiveProject(project.id)}
                 onMouseLeave={() => setActiveProject(null)}
                 style={{ cursor: "pointer" }}
@@ -657,7 +658,7 @@ export const ProjectsSection = () => {
             </div>
 
             <img
-              src="/projects/10MinutesCity.jpg"
+              src="/projects/tenminutescity.svg"
               alt="10 Minutes City"
               className="
                 h-[76px]

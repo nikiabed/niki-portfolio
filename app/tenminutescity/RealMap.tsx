@@ -1,257 +1,58 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import {
-  MapContainer,
-  TileLayer,
-  CircleMarker,
-  Polygon,
-  Polyline,
-  useMap,
-} from "react-leaflet";
+import { useEffect, useRef, useState } from "react";
+import { Circle, CircleMarker, MapContainer, Polygon, Polyline, Popup, ScaleControl, TileLayer, useMap, useMapEvents } from "react-leaflet";
+import { DomEvent } from "leaflet";
+import type { CityData, Layer, MapFeature } from "./data";
+import { distanceMeters, normalizeLongitude } from "./data";
 
-import "leaflet/dist/leaflet.css";
+import styles from "./RealMap.module.css";
 
-type Layer = "landuse" | "services" | "density" | "green" | "buildings";
-
-type OSMData = {
-  studyArea: {
-    south: number;
-    west: number;
-    north: number;
-    east: number;
-  };
-
-  counts: {
-    buildings: number;
-    streets: number;
-    green: number;
-    services: number;
-  };
-
-  buildings: any[];
-  streets: any[];
-  green: any[];
-  services: any[];
-};
-
-function MapView({ studyArea }: { studyArea: OSMData["studyArea"] }) {
+function PickOrigin({ center, onCenterChange, selecting, setSelecting }: {
+  center: [number, number]; onCenterChange: (center: [number, number]) => void;
+  selecting: boolean; setSelecting: (value: boolean) => void;
+}) {
   const map = useMap();
-
+  const controls = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    map.fitBounds([
-      [studyArea.south, studyArea.west],
-      [studyArea.north, studyArea.east],
-    ]);
-  }, [map, studyArea]);
-
-  return null;
+    if (controls.current) {
+      DomEvent.disableClickPropagation(controls.current);
+      DomEvent.disableScrollPropagation(controls.current);
+    }
+  }, []);
+  const choose = (lat: number, lng: number) => {
+    onCenterChange([Math.max(-85, Math.min(85, lat)), normalizeLongitude(lng)]);
+    setSelecting(false);
+  };
+  useMapEvents({ click(event) { choose(event.latlng.lat, event.latlng.lng); } });
+  useEffect(() => { map.setView(center, Math.max(map.getZoom(), 14)); }, [map, center]);
+  return <div ref={controls} className="absolute right-3 top-3 z-[1000] flex flex-col items-end gap-2" onPointerDown={event => event.stopPropagation()} onDoubleClick={event => event.stopPropagation()} onClick={event => event.stopPropagation()}>
+    <button aria-pressed={selecting} onClick={() => setSelecting(!selecting)} className="border border-white/20 bg-[#171b22] px-3 py-2 text-xs text-white shadow-lg">{selecting ? "Cancel selection" : "Choose location"}</button>
+    <button onClick={() => { const point = map.getCenter(); choose(point.lat, point.lng); }} className="border border-white/20 bg-[#171b22] px-3 py-2 text-xs text-white shadow-lg">Analyze map center</button>
+    {selecting && <span className="max-w-48 bg-[#171b22] px-3 py-2 text-xs text-white">Click anywhere to select your neighborhood.</span>}
+  </div>;
 }
 
-export default function RealMap({ activeLayer }: { activeLayer: Layer }) {
-  const [data, setData] = useState<OSMData | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function loadData() {
-      try {
-        const response = await fetch("/api/tenminutescity");
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch OSM data");
-        }
-
-        const result = await response.json();
-
-        setData(result);
-      } catch (error) {
-        console.error("OSM MAP ERROR:", error);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    loadData();
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="absolute inset-0 flex items-center justify-center bg-[#151515]">
-        <span className="font-mono text-[9px] tracking-[0.2em] text-white/25">
-          LOADING REAL-WORLD DATA...
-        </span>
-      </div>
-    );
-  }
-
-  if (!data) {
-    return (
-      <div className="absolute inset-0 flex items-center justify-center bg-[#151515]">
-        <span className="font-mono text-[9px] tracking-[0.2em] text-white/25">
-          OSM DATA UNAVAILABLE
-        </span>
-      </div>
-    );
-  }
-
-  const center: [number, number] = [
-    (data.studyArea.south + data.studyArea.north) / 2,
-    (data.studyArea.west + data.studyArea.east) / 2,
-  ];
-
+export default function RealMap({ data, activeLayer, radius, center, onCenterChange }: {
+  data: CityData | null; activeLayer: Layer; radius: number;
+  center: [number, number]; onCenterChange: (center: [number, number]) => void;
+}) {
+  const [selecting, setSelecting] = useState(false);
+  const show = (layer: Layer) => activeLayer === "overview" || activeLayer === layer;
+  const popup = (feature: MapFeature) => <Popup><strong>{feature.name}</strong><br />{feature.category.replaceAll("_", " ")}<br />{Math.round(distanceMeters(feature.lat, feature.lon, center))} m from selected origin</Popup>;
   return (
-    <div className="absolute inset-0 overflow-hidden">
-      <MapContainer
-        center={center}
-        zoom={14}
-        zoomControl={false}
-        attributionControl={false}
-        className="h-full w-full"
-      >
-        <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" />
+    <MapContainer center={center} zoom={15} scrollWheelZoom className={`h-full w-full ${styles.map}`} style={{ background: "#181c20" }} worldCopyJump minZoom={2}>
+      <TileLayer url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>' />
+      <PickOrigin center={center} onCenterChange={onCenterChange} selecting={selecting} setSelecting={setSelecting} />
+      <ScaleControl position="bottomleft" imperial={false} />
 
-        <MapView studyArea={data.studyArea} />
-
-        {/* =====================================================
-            BUILDINGS
-        ===================================================== */}
-
-        {activeLayer === "buildings" &&
-          data.buildings.map((building) => {
-            if (!building.lat || !building.lon) return null;
-
-            return (
-              <CircleMarker
-                key={`building-${building.id}`}
-                center={[building.lat, building.lon]}
-                radius={2}
-                pathOptions={{
-                  fillOpacity: 0.35,
-                  opacity: 0.25,
-                  weight: 0,
-                }}
-              />
-            );
-          })}
-
-        {/* =====================================================
-            SERVICES
-        ===================================================== */}
-
-        {activeLayer === "services" &&
-          data.services.map((service) => {
-            if (!service.lat || !service.lon) return null;
-
-            return (
-              <CircleMarker
-                key={`service-${service.id}`}
-                center={[service.lat, service.lon]}
-                radius={4}
-                pathOptions={{
-                  fillOpacity: 0.75,
-                  opacity: 0.5,
-                  weight: 1,
-                }}
-              />
-            );
-          })}
-
-        {/* =====================================================
-            GREEN
-        ===================================================== */}
-
-        {activeLayer === "green" &&
-          data.green.map((item) => {
-            if (!item.lat || !item.lon) return null;
-
-            return (
-              <CircleMarker
-                key={`green-${item.id}`}
-                center={[item.lat, item.lon]}
-                radius={10}
-                pathOptions={{
-                  fillOpacity: 0.22,
-                  opacity: 0.45,
-                  weight: 1,
-                }}
-              />
-            );
-          })}
-
-        {/* =====================================================
-            DENSITY
-        ===================================================== */}
-
-        {activeLayer === "density" &&
-          data.buildings.map((building) => {
-            if (!building.lat || !building.lon) return null;
-
-            return (
-              <CircleMarker
-                key={`density-${building.id}`}
-                center={[building.lat, building.lon]}
-                radius={3}
-                pathOptions={{
-                  fillOpacity: 0.5,
-                  opacity: 0.25,
-                  weight: 0,
-                }}
-              />
-            );
-          })}
-
-        {/* =====================================================
-            LAND USE / STREET STRUCTURE
-        ===================================================== */}
-
-        {activeLayer === "landuse" &&
-          data.streets.map((street) => {
-            if (!street.lat || !street.lon) return null;
-
-            return (
-              <CircleMarker
-                key={`street-${street.id}`}
-                center={[street.lat, street.lon]}
-                radius={1.5}
-                pathOptions={{
-                  fillOpacity: 0.35,
-                  opacity: 0.25,
-                  weight: 0,
-                }}
-              />
-            );
-          })}
-      </MapContainer>
-
-      {/* =====================================================
-          DATA COUNTER
-      ===================================================== */}
-
-      <div className="pointer-events-none absolute bottom-5 right-5 z-[1000]">
-        <div className="border border-white/10 bg-black/50 px-3 py-2 backdrop-blur-sm">
-          <p className="font-mono text-[7px] uppercase tracking-[0.2em] text-white/30">
-            LIVE DATASET
-          </p>
-
-          <p className="mt-1 font-mono text-[8px] text-white/45">
-            {data.counts.buildings.toLocaleString()} buildings
-          </p>
-
-          <p className="font-mono text-[8px] text-white/45">
-            {data.counts.services.toLocaleString()} services
-          </p>
-
-          <p className="font-mono text-[8px] text-white/45">
-            {data.counts.green.toLocaleString()} green areas
-          </p>
-        </div>
-      </div>
-
-      {/* =====================================================
-          VIGNETTE
-      ===================================================== */}
-
-      <div className="pointer-events-none absolute inset-0 z-[900] bg-[radial-gradient(circle_at_center,transparent_40%,rgba(0,0,0,0.4)_100%)]" />
-    </div>
+      {show("streets") && data?.streets.map(f => f.geometry.length > 1 && <Polyline key={f.id} positions={f.geometry} interactive={!selecting} bubblingMouseEvents={false} pathOptions={{ color: "#a6a39c", weight: 2, opacity: 0.5 }}>{popup(f)}</Polyline>)}
+      {show("buildings") && data?.buildings.map(f => f.geometry.length > 2 && <Polygon key={f.id} positions={f.geometry} interactive={!selecting} bubblingMouseEvents={false} pathOptions={{ color: "#b8b5ae", weight: 0.5, fillOpacity: 0.25 }}>{popup(f)}</Polygon>)}
+      {show("green") && data?.green.map(f => f.geometry.length > 2 ? <Polygon key={f.id} positions={f.geometry} interactive={!selecting} bubblingMouseEvents={false} pathOptions={{ color: "#7fc6a4", weight: 1, fillOpacity: 0.4 }}>{popup(f)}</Polygon> : <CircleMarker key={f.id} center={[f.lat, f.lon]} radius={7} interactive={!selecting} bubblingMouseEvents={false} pathOptions={{ color: "#7fc6a4" }}>{popup(f)}</CircleMarker>)}
+      <Circle center={center} radius={radius} interactive={false} pathOptions={{ color: "#7d9be8", weight: 1.5, dashArray: "5 7", fillOpacity: 0.07 }} />
+      {show("services") && data?.services.map(f => <CircleMarker key={f.id} center={[f.lat, f.lon]} radius={4} interactive={!selecting} bubblingMouseEvents={false} pathOptions={{ color: distanceMeters(f.lat, f.lon, center) <= radius ? "#7d9be8" : "#686d79", weight: 1, fillOpacity: 0.85 }}>{popup(f)}</CircleMarker>)}
+      <CircleMarker center={center} radius={6} interactive={!selecting} bubblingMouseEvents={false} pathOptions={{ color: "#fff", fillColor: "#7d9be8", fillOpacity: 1, weight: 2 }}><Popup>Selected study origin · Click an empty map location anywhere to move it.</Popup></CircleMarker>
+    </MapContainer>
   );
 }

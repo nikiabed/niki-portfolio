@@ -1,0 +1,3 @@
+.map :global(.leaflet-tile-pane) {
+  filter: grayscale(1) invert(1) brightness(0.75);
+}
