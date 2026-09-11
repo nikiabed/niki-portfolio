@@ -1,14 +1,216 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import {
+  motion,
+  useMotionValueEvent,
+  useScroll,
+  useSpring,
+  useTransform,
+} from "framer-motion";
+
 import { MomentumlySection } from "./MomentumlySection";
 import { ProjectsSection } from "./ProjectsSection";
 import { ThesisSection } from "./ThesisSection";
 import { CurrentlyExploringSection } from "./CurrentlyExploringSection";
 import { FooterSection } from "./FooterSection";
 
+/* ============================================================
+   TYPES
+============================================================ */
+
+type ScrollDirection = "down" | "up";
+
+interface FootstepData {
+  x: number;
+  y: number;
+  rotate: number;
+}
+
+/* ============================================================
+   FOOTSTEP PATH
+============================================================ */
+
+const FOOTSTEPS: FootstepData[] = [
+  { x: 25.8, y: 3, rotate: 0 },
+  { x: 25.1, y: 6, rotate: 2 },
+  { x: 23.8, y: 9, rotate: 12 },
+  { x: 21.8, y: 12, rotate: 18 },
+  { x: 19.5, y: 15, rotate: 20 },
+
+  { x: 18.6, y: 18, rotate: 6 },
+  { x: 18.5, y: 22, rotate: 0 },
+  { x: 18.5, y: 26, rotate: 0 },
+  { x: 18.5, y: 30, rotate: 0 },
+  { x: 18.5, y: 34, rotate: 0 },
+
+  { x: 18.5, y: 38, rotate: 0 },
+  { x: 18.5, y: 42, rotate: 0 },
+  { x: 18.5, y: 46, rotate: 0 },
+  { x: 18.5, y: 50, rotate: 0 },
+  { x: 18.5, y: 54, rotate: 0 },
+
+  { x: 18.5, y: 58, rotate: 0 },
+  { x: 18.5, y: 62, rotate: 0 },
+  { x: 18.5, y: 66, rotate: 0 },
+  { x: 18.5, y: 70, rotate: 0 },
+  { x: 18.5, y: 74, rotate: 0 },
+
+  { x: 18.5, y: 78, rotate: 0 },
+  { x: 18.5, y: 82, rotate: 0 },
+  { x: 18.5, y: 86, rotate: 0 },
+  { x: 18.5, y: 90, rotate: 0 },
+  { x: 18.5, y: 94, rotate: 0 },
+  { x: 18.5, y: 98, rotate: 0 },
+];
+
+/* ============================================================
+   SINGLE FOOTSTEP
+============================================================ */
+
+const Footstep = ({
+  x,
+  y,
+  rotate,
+  side,
+  direction,
+  distance,
+}: {
+  x: number;
+  y: number;
+  rotate: number;
+  side: "left" | "right";
+  direction: ScrollDirection;
+  distance: number;
+}) => {
+  const sideOffset = side === "left" ? -0.32 : 0.32;
+
+  /*
+    distance:
+    0 = current footstep
+    1 = previous footstep
+    2 = previous previous...
+  */
+
+  const isVisible = distance >= 0 && distance <= 4;
+
+  const opacityLevels = [0.72, 0.52, 0.34, 0.2, 0.1];
+
+  const targetOpacity = isVisible ? (opacityLevels[distance] ?? 0) : 0;
+
+  const targetScale = distance === 0 ? 1.08 : 1;
+
+  return (
+    <motion.div
+      animate={{
+        opacity: targetOpacity,
+        scale: targetScale,
+        rotate: direction === "down" ? rotate + 180 : rotate,
+      }}
+      transition={{
+        opacity: {
+          duration: 0.22,
+          ease: "easeOut",
+        },
+        scale: {
+          duration: 0.22,
+          ease: "easeOut",
+        },
+        rotate: {
+          duration: 0.28,
+          ease: "easeOut",
+        },
+      }}
+      style={{
+        left: `${x + sideOffset}%`,
+        top: `${y}%`,
+      }}
+      className="
+        absolute
+        -translate-x-1/2
+        -translate-y-1/2
+        text-white
+        will-change-transform
+      "
+    >
+      <svg
+        width="11"
+        height="22"
+        viewBox="0 0 12 24"
+        fill="none"
+        aria-hidden="true"
+      >
+        {/* front / toe */}
+
+        <ellipse cx="6" cy="6.2" rx="3.7" ry="5.4" fill="currentColor" />
+
+        {/* heel */}
+
+        <ellipse cx="6" cy="17" rx="2.6" ry="4.2" fill="currentColor" />
+      </svg>
+    </motion.div>
+  );
+};
+
+/* ============================================================
+   WALKING FOOTPRINTS
+============================================================ */
+
+const WalkingFootprints = ({
+  activeStep,
+  direction,
+}: {
+  activeStep: number;
+  direction: ScrollDirection;
+}) => {
+  return (
+    <>
+      {FOOTSTEPS.map((step, index) => {
+        /*
+          DOWN:
+          current step + footsteps behind it
+
+          UP:
+          current step + footsteps below it,
+          so the trail visually follows us upward.
+        */
+
+        const distance =
+          direction === "down" ? activeStep - index : index - activeStep;
+
+        const side = index % 2 === 0 ? "left" : "right";
+
+        return (
+          <Footstep
+            key={index}
+            {...step}
+            side={side}
+            direction={direction}
+            distance={distance}
+          />
+        );
+      })}
+    </>
+  );
+};
+
+/* ============================================================
+   CITY MAP
+============================================================ */
+
 export const CityMap = () => {
   const [visible, setVisible] = useState(false);
+
+  const [scrollDirection, setScrollDirection] =
+    useState<ScrollDirection>("down");
+
+  const [activeStep, setActiveStep] = useState(0);
+
+  const sectionRef = useRef<HTMLElement | null>(null);
+
+  /* =========================================================
+     INITIAL ENTRANCE
+  ========================================================== */
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -18,17 +220,82 @@ export const CityMap = () => {
     return () => window.clearTimeout(timer);
   }, []);
 
+  /* =========================================================
+     SCROLL DIRECTION
+  ========================================================== */
+
+  useEffect(() => {
+    let lastScrollY = window.scrollY;
+
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+
+      if (currentScrollY > lastScrollY + 1) {
+        setScrollDirection("down");
+      } else if (currentScrollY < lastScrollY - 1) {
+        setScrollDirection("up");
+      }
+
+      lastScrollY = currentScrollY;
+    };
+
+    window.addEventListener("scroll", handleScroll, {
+      passive: true,
+    });
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
+  /* =========================================================
+     SCROLL PROGRESS
+  ========================================================== */
+
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start start", "end end"],
+  });
+
+  /*
+    Faster spring so footprints stay close
+    to the actual scroll position.
+  */
+
+  const smoothProgress = useSpring(scrollYProgress, {
+    stiffness: 260,
+    damping: 34,
+    mass: 0.18,
+  });
+
+  /* =========================================================
+     ACTIVE FOOTSTEP
+  ========================================================== */
+
+  useMotionValueEvent(smoothProgress, "change", (latest) => {
+    const index = Math.round(latest * (FOOTSTEPS.length - 1));
+
+    setActiveStep((previous) => (previous === index ? previous : index));
+  });
+
+  /* =========================================================
+     LEFT PROGRESS DOT
+  ========================================================== */
+
+  const walkerTop = useTransform(smoothProgress, [0, 1], ["0%", "100%"]);
+
   return (
     <main className="w-full bg-[#1b1b1b] text-[#f1f1ed]">
       <section
+        ref={sectionRef}
         className="
-    relative
-    h-[315.3vw]
-    max-mobile:h-[700.6vw]
-    w-full
-    overflow-hidden
-    bg-[#1e1e1e]
-  "
+          relative
+          h-[315.3vw]
+          max-mobile:h-[700.6vw]
+          w-full
+          overflow-hidden
+          bg-[#1e1e1e]
+        "
       >
         {/* =====================================================
             BACKGROUND MAP
@@ -54,16 +321,167 @@ export const CityMap = () => {
         </div>
 
         {/* =====================================================
-            HEADER CONTENT
+            FOOTSTEPS
+        ====================================================== */}
+
+        <div
+          className="
+            pointer-events-none
+            absolute
+            inset-0
+            z-[4]
+            hidden
+            mobile:block
+          "
+        >
+          <WalkingFootprints
+            activeStep={activeStep}
+            direction={scrollDirection}
+          />
+        </div>
+
+        {/* =====================================================
+            DESKTOP SCROLL INDICATOR
+        ====================================================== */}
+
+        <div
+          className="
+            pointer-events-none
+            fixed
+            left-[2rem]
+            top-[8vh]
+            z-[50]
+            hidden
+            h-[84vh]
+            w-[20px]
+            mobile:block
+          "
+        >
+          {/* base line */}
+
+          <div
+            className="
+              absolute
+              left-1/2
+              top-0
+              h-full
+              w-px
+              -translate-x-1/2
+              bg-white/10
+            "
+          />
+
+          {/* completed progress */}
+
+          <motion.div
+            style={{
+              scaleY: smoothProgress,
+              transformOrigin: "top",
+            }}
+            className="
+              absolute
+              left-1/2
+              top-0
+              h-full
+              w-px
+              -translate-x-1/2
+              bg-white/45
+            "
+          />
+
+          {/* nodes */}
+
+          <div
+            className="
+              absolute
+              left-1/2
+              top-0
+              h-full
+              -translate-x-1/2
+            "
+          >
+            {[0, 20, 40, 60, 80, 100].map((value) => (
+              <div
+                key={value}
+                style={{
+                  top: `${value}%`,
+                }}
+                className="
+                    absolute
+                    left-1/2
+                    h-[5px]
+                    w-[5px]
+                    -translate-x-1/2
+                    -translate-y-1/2
+                    rounded-full
+                    border
+                    border-white/20
+                    bg-[#1e1e1e]
+                  "
+              />
+            ))}
+          </div>
+
+          {/* moving location */}
+
+          <motion.div
+            style={{
+              top: walkerTop,
+            }}
+            className="
+              absolute
+              left-1/2
+              h-[8px]
+              w-[8px]
+              -translate-x-1/2
+              -translate-y-1/2
+              rounded-full
+              bg-white/90
+              shadow-[0_0_14px_rgba(255,255,255,0.28)]
+            "
+          />
+        </div>
+
+        {/* =====================================================
+            MOBILE PROGRESS
+        ====================================================== */}
+
+        <div
+          className="
+            pointer-events-none
+            fixed
+            bottom-0
+            left-0
+            z-[50]
+            block
+            h-[2px]
+            w-full
+            bg-white/10
+            mobile:hidden
+          "
+        >
+          <motion.div
+            style={{
+              scaleX: smoothProgress,
+              transformOrigin: "left",
+            }}
+            className="
+              h-full
+              w-full
+              bg-white/60
+            "
+          />
+        </div>
+
+        {/* =====================================================
+            HEADER
         ====================================================== */}
 
         <div className="relative z-10 w-full">
           <div className="mx-auto w-[90%] max-w-[1400px]">
-            {/* =================================================
-                DESKTOP NAME
-            ================================================== */}
+            {/* DESKTOP NAME */}
 
-            <div className="hidden mobile:block pt-[2vw]">
+            <div className="hidden pt-[2vw] mobile:block">
               <p
                 className={`
                   text-[clamp(0.65rem,1.2vw,1rem)]
@@ -84,11 +502,9 @@ export const CityMap = () => {
               </p>
             </div>
 
-            {/* =================================================
-                MOBILE NAME + TITLES
-            ================================================== */}
+            {/* MOBILE NAME + TITLES */}
 
-            <div className="block mobile:hidden pt-5">
+            <div className="block pt-5 mobile:hidden">
               <div
                 className={`
                   flex
@@ -105,8 +521,6 @@ export const CityMap = () => {
                   }
                 `}
               >
-                {/* NAME */}
-
                 <p
                   className="
                     shrink-0
@@ -119,11 +533,11 @@ export const CityMap = () => {
                   Niki Abedzadeh
                 </p>
 
-                {/* TITLES */}
-
                 <div className="flex items-center gap-[0.55rem] text-[0.58rem] uppercase tracking-[0.08em]">
                   <span className="text-[var(--design)]">Design</span>
+
                   <span className="text-[var(--research)]">Research</span>
+
                   <span className="text-[var(--develop)]">Develop</span>
                 </div>
               </div>
@@ -137,11 +551,11 @@ export const CityMap = () => {
               <svg
                 viewBox="0 0 1400 400"
                 className="
-                   mt-[2vw]
-  h-[160px]
-  w-full
-  overflow-visible
-mobile:h-[350px]
+                  mt-[2vw]
+                  h-[160px]
+                  w-full
+                  overflow-visible
+                  mobile:h-[350px]
                 "
                 preserveAspectRatio="xMidYMin meet"
               >
@@ -180,9 +594,7 @@ mobile:h-[350px]
                   Develop
                 </text>
 
-                {/* =================================================
-                    DESIGN
-                ================================================== */}
+                {/* DESIGN */}
 
                 <a href="#design" className="group">
                   <g
@@ -253,9 +665,7 @@ mobile:h-[350px]
                   strokeOpacity="0.1"
                 />
 
-                {/* =================================================
-                    RESEARCH
-                ================================================== */}
+                {/* RESEARCH */}
 
                 <a href="#research" className="group">
                   <g
@@ -302,15 +712,7 @@ mobile:h-[350px]
                   </g>
                 </a>
 
-                {/* =================================================
-                    STREET / GAP
-                ================================================== */}
-
-                {/* intentional street */}
-
-                {/* =================================================
-                    DEVELOP GROUP
-                ================================================== */}
+                {/* EMPTY */}
 
                 <rect
                   x="890"
@@ -333,6 +735,8 @@ mobile:h-[350px]
                   stroke="white"
                   strokeOpacity="0.1"
                 />
+
+                {/* DEVELOP */}
 
                 <a href="#develop" className="group">
                   <g
@@ -379,9 +783,7 @@ mobile:h-[350px]
                   </g>
                 </a>
 
-                {/* =================================================
-                    LOWER BLOCKS
-                ================================================== */}
+                {/* LOWER BLOCKS */}
 
                 <rect
                   x="650"
@@ -407,15 +809,20 @@ mobile:h-[350px]
 
                 {/* CONTACT */}
 
-                <a href="#contact" className="group">
+                <a
+                  href="/Niki-Abedzadeh-CV.pdf"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="group"
+                >
                   <g
                     className="
-                      origin-center
-                      transition-transform
-                      duration-300
-                      group-hover:-translate-y-3
-                      group-hover:scale-[1.04]
-                    "
+      origin-center
+      transition-transform
+      duration-300
+      group-hover:-translate-y-3
+      group-hover:scale-[1.04]
+    "
                   >
                     <rect
                       x="865"
@@ -427,34 +834,34 @@ mobile:h-[350px]
                       stroke="white"
                       strokeOpacity="0.45"
                       className="
-                        transition-all
-                        duration-300
-                        group-hover:fill-white
-                        group-hover:fill-opacity-[0.08]
-                        group-hover:stroke-opacity-80
-                      "
+        transition-all
+        duration-300
+        group-hover:fill-white
+        group-hover:fill-opacity-[0.08]
+        group-hover:stroke-opacity-80
+      "
                     />
 
                     <text
-                      x="875"
-                      y="300"
+                      x="895"
+                      y="315"
                       fill="white"
                       fontSize="13"
                       opacity="0"
                       className="
-                        transition-opacity
-                        duration-300
-                        group-hover:opacity-70
-                      "
+        transition-opacity
+        duration-300
+        group-hover:opacity-70
+      "
                     >
-                      Contact →
+                      CV ↗
                     </text>
                   </g>
                 </a>
 
                 {/* ABOUT */}
 
-                <a href="#about" className="group">
+                <a href="about" className="group">
                   <g
                     className="
                       origin-center
@@ -502,8 +909,7 @@ mobile:h-[350px]
             </div>
 
             {/* =================================================
-                MOBILE
-                NO HOVER
+                MOBILE SVG
             ================================================== */}
 
             <div className="block mobile:hidden">
@@ -512,10 +918,6 @@ mobile:h-[350px]
                 className="mt-5 h-auto w-full overflow-visible"
                 preserveAspectRatio="xMidYMin meet"
               >
-                {/* =================================================
-                    DESIGN BLOCK
-                ================================================== */}
-
                 <a href="#design">
                   <rect
                     x="15"
@@ -532,10 +934,6 @@ mobile:h-[350px]
                     Design →
                   </text>
                 </a>
-
-                {/* =================================================
-                    RESEARCH
-                ================================================== */}
 
                 <a href="#research">
                   <rect
@@ -554,10 +952,6 @@ mobile:h-[350px]
                   </text>
                 </a>
 
-                {/* =================================================
-                    DEVELOP
-                ================================================== */}
-
                 <a href="#develop">
                   <rect
                     x="200"
@@ -575,13 +969,11 @@ mobile:h-[350px]
                   </text>
                 </a>
 
-                {/* =================================================
-                    LOWER
-                ================================================== */}
-
-                {/* CONTACT */}
-
-                <a href="#contact">
+                <a
+                  href="/Niki-Abedzadeh-CV.pdf"
+                  target="_blank"
+                  rel="noreferrer"
+                >
                   <rect
                     x="270"
                     y="35"
@@ -593,12 +985,10 @@ mobile:h-[350px]
                     strokeOpacity="0.5"
                   />
 
-                  <text x="273" y="77" fill="white" fontSize="10">
-                    Contact →
+                  <text x="288" y="77" fill="white" fontSize="10">
+                    CV ↗
                   </text>
                 </a>
-
-                {/* ABOUT */}
 
                 <a href="#about">
                   <rect
@@ -627,7 +1017,7 @@ mobile:h-[350px]
               <h2
                 className={`
                   ml-auto
-                  mt-[-1rem] mobile:mt-[clamp(0.8rem,2vw,2rem)]
+                  mt-[-1rem]
                   max-w-[750px]
                   text-[clamp(1.5rem,3.5vw,3.5rem)]
                   font-light
@@ -637,6 +1027,7 @@ mobile:h-[350px]
                   transition-all
                   duration-[1400ms]
                   ease-out
+                  mobile:mt-[clamp(0.8rem,2vw,2rem)]
                   ${
                     visible
                       ? "translate-y-0 opacity-100"
@@ -655,9 +1046,13 @@ mobile:h-[350px]
         ====================================================== */}
 
         <MomentumlySection />
+
         <ProjectsSection />
+
         <ThesisSection />
+
         <CurrentlyExploringSection />
+
         <FooterSection />
       </section>
     </main>
