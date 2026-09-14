@@ -31,38 +31,55 @@ interface FootstepData {
    FOOTSTEP PATH
 ============================================================ */
 
-const FOOTSTEPS: FootstepData[] = [
+/*
+  Key waypoints only — the path between them is densified below
+  so consecutive footprints sit closer together (a shorter, more
+  natural stride) instead of the sparse waypoints themselves.
+*/
+const FOOTSTEP_WAYPOINTS: FootstepData[] = [
   { x: 25.8, y: 3, rotate: 0 },
   { x: 25.1, y: 6, rotate: 2 },
   { x: 23.8, y: 9, rotate: 12 },
   { x: 21.8, y: 12, rotate: 18 },
   { x: 19.5, y: 15, rotate: 20 },
-
   { x: 18.6, y: 18, rotate: 6 },
-  { x: 18.5, y: 22, rotate: 0 },
-  { x: 18.5, y: 26, rotate: 0 },
-  { x: 18.5, y: 30, rotate: 0 },
-  { x: 18.5, y: 34, rotate: 0 },
-
-  { x: 18.5, y: 38, rotate: 0 },
-  { x: 18.5, y: 42, rotate: 0 },
-  { x: 18.5, y: 46, rotate: 0 },
-  { x: 18.5, y: 50, rotate: 0 },
-  { x: 18.5, y: 54, rotate: 0 },
-
-  { x: 18.5, y: 58, rotate: 0 },
-  { x: 18.5, y: 62, rotate: 0 },
-  { x: 18.5, y: 66, rotate: 0 },
-  { x: 18.5, y: 70, rotate: 0 },
-  { x: 18.5, y: 74, rotate: 0 },
-
-  { x: 18.5, y: 78, rotate: 0 },
-  { x: 18.5, y: 82, rotate: 0 },
-  { x: 18.5, y: 86, rotate: 0 },
-  { x: 18.5, y: 90, rotate: 0 },
-  { x: 18.5, y: 94, rotate: 0 },
   { x: 18.5, y: 98, rotate: 0 },
 ];
+
+/*
+  Distance (in % of section height) between footprints.
+  Smaller = shorter, closer-together steps.
+*/
+const FOOTSTEP_GAP = 2;
+
+const densifyPath = (
+  waypoints: FootstepData[],
+  maxGap: number
+): FootstepData[] => {
+  const dense: FootstepData[] = [];
+
+  for (let i = 0; i < waypoints.length - 1; i++) {
+    const a = waypoints[i];
+    const b = waypoints[i + 1];
+    const segments = Math.max(1, Math.round((b.y - a.y) / maxGap));
+
+    for (let s = 0; s < segments; s++) {
+      const t = s / segments;
+
+      dense.push({
+        x: a.x + (b.x - a.x) * t,
+        y: a.y + (b.y - a.y) * t,
+        rotate: a.rotate + (b.rotate - a.rotate) * t,
+      });
+    }
+  }
+
+  dense.push(waypoints[waypoints.length - 1]);
+
+  return dense;
+};
+
+const FOOTSTEPS: FootstepData[] = densifyPath(FOOTSTEP_WAYPOINTS, FOOTSTEP_GAP);
 
 /* ============================================================
    SINGLE FOOTSTEP
