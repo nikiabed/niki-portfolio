@@ -1,9 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export const ThesisSection = () => {
   const [hovered, setHovered] = useState(false);
+  const router = useRouter();
+
+  const goToStreetView = () => router.push("/streetview");
 
   /* ============================================================
    * SVG COORDINATE SYSTEM
@@ -143,6 +147,7 @@ export const ThesisSection = () => {
           className="hidden mobile:block"
           onMouseEnter={() => setHovered(true)}
           onMouseLeave={() => setHovered(false)}
+          onClick={goToStreetView}
           style={{
             cursor: "pointer",
           }}
@@ -214,7 +219,14 @@ export const ThesisSection = () => {
             SAME SYSTEM AS MOMENTUMLY
         ====================================================== */}
 
-        <g pointerEvents="none" className="block mobile:hidden">
+        <g
+          pointerEvents="all"
+          className="block mobile:hidden"
+          onClick={goToStreetView}
+          style={{
+            cursor: "pointer",
+          }}
+        >
           {/* ==================================================
               OUTER FIELD
           ================================================== */}
